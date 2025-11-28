@@ -173,6 +173,13 @@ export default function MultiStepForm() {
             setIsMatching(false);
             setCurrentStep(11); // Success step
             toast.success("Perfect matches found!");
+            
+            // Redirect to CPA network if URL is provided
+            if (data.redirectUrl) {
+              setTimeout(() => {
+                window.location.href = data.redirectUrl!;
+              }, 3000); // Give user 3 seconds to see success message
+            }
           }, 500);
         }
       }, 400);

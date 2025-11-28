@@ -3,6 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
+import { ENV } from "./_core/env";
 import { z } from "zod";
 import {
   insertContactMessage,
@@ -17,6 +18,7 @@ import {
   getAllBlogPosts,
 } from "./db";
 import { validateLeadForCompliance, distributeLeadToNetworks } from "./webhook";
+import { sendContactFormNotification } from "./email";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -50,6 +52,15 @@ export const appRouter = router({
           ...input,
           ipAddress,
           userAgent,
+        });
+
+        // Send email notification
+        await sendContactFormNotification({
+          name: input.name,
+          email: input.email,
+          phone: input.phone,
+          message: input.message,
+          submittedAt: new Date(),
         });
 
         return { success: true };
@@ -134,6 +145,7 @@ export const appRouter = router({
         return {
           success: true,
           leadId,
+          redirectUrl: ENV.cpaRedirectUrl || null,
         };
       }),
   }),
