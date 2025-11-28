@@ -26,6 +26,49 @@ export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
 /**
+ * Blog posts table for SEO content
+ */
+export const blogPosts = mysqlTable("blog_posts", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 500 }).notNull(),
+  slug: varchar("slug", { length: 500 }).notNull().unique(),
+  excerpt: text("excerpt"),
+  content: text("content").notNull(),
+  coverImage: varchar("coverImage", { length: 500 }),
+  category: varchar("category", { length: 100 }),
+  tags: text("tags"), // JSON array of tags
+  metaTitle: varchar("metaTitle", { length: 200 }),
+  metaDescription: text("metaDescription"),
+  status: mysqlEnum("status", ["draft", "published"]).default("draft").notNull(),
+  authorId: int("authorId").references(() => users.id),
+  publishedAt: timestamp("publishedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type InsertBlogPost = typeof blogPosts.$inferInsert;
+
+/**
+ * Contact form submissions
+ */
+export const contactMessages = mysqlTable("contact_messages", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 200 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  phone: varchar("phone", { length: 20 }),
+  subject: varchar("subject", { length: 300 }),
+  message: text("message").notNull(),
+  status: mysqlEnum("status", ["new", "read", "replied"]).default("new").notNull(),
+  ipAddress: varchar("ipAddress", { length: 45 }),
+  userAgent: text("userAgent"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ContactMessage = typeof contactMessages.$inferSelect;
+export type InsertContactMessage = typeof contactMessages.$inferInsert;
+
+/**
  * Leads table for storing auto insurance lead submissions
  */
 export const leads = mysqlTable("leads", {

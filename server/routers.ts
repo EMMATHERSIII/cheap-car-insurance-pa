@@ -1,9 +1,21 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router } from "./_core/trpc";
+import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { createLead, getLeadById, updateLeadStatus } from "./db";
+import {
+  insertContactMessage,
+  createLead,
+  getLeadById,
+  updateLeadStatus,
+  getPublishedBlogPosts,
+  getBlogPostBySlug,
+  getRecentBlogPosts,
+  createBlogPost,
+  updateBlogPost,
+  getAllBlogPosts,
+} from "./db";
 import { validateLeadForCompliance, distributeLeadToNetworks } from "./webhook";
 
 export const appRouter = router({
@@ -18,6 +30,30 @@ export const appRouter = router({
         success: true,
       } as const;
     }),
+  }),
+  contact: router({
+    submit: publicProcedure
+      .input(
+        z.object({
+          name: z.string().min(1, "Name is required"),
+          email: z.string().email("Invalid email address"),
+          phone: z.string().optional(),
+          subject: z.string().optional(),
+          message: z.string().min(10, "Message must be at least 10 characters"),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        const ipAddress = (ctx.req.headers["x-forwarded-for"] as string) || ctx.req.ip || "";
+        const userAgent = ctx.req.headers["user-agent"] || "";
+
+        await insertContactMessage({
+          ...input,
+          ipAddress,
+          userAgent,
+        });
+
+        return { success: true };
+      }),
   }),
 
   leads: router({
@@ -100,6 +136,81 @@ export const appRouter = router({
           leadId,
         };
       }),
+  }),
+
+  blog: router({
+    list: publicProcedure.query(async () => {
+      return await getPublishedBlogPosts();
+    }),
+    getBySlug: publicProcedure
+      .input(z.object({ slug: z.string() }))
+      .query(async ({ input }) => {
+        return await getBlogPostBySlug(input.slug);
+      }),
+    recent: publicProcedure
+      .input(z.object({ limit: z.number().optional() }).optional())
+      .query(async ({ input }) => {
+        return await getRecentBlogPosts(input?.limit);
+      }),
+    admin: router({
+      list: protectedProcedure.query(async ({ ctx }) => {
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN" });
+        }
+        return await getAllBlogPosts();
+      }),
+      create: protectedProcedure
+        .input(
+          z.object({
+            title: z.string(),
+            slug: z.string(),
+            excerpt: z.string().optional(),
+            content: z.string(),
+            coverImage: z.string().optional(),
+            category: z.string().optional(),
+            tags: z.string().optional(),
+            metaTitle: z.string().optional(),
+            metaDescription: z.string().optional(),
+            status: z.enum(["draft", "published"]),
+            publishedAt: z.date().optional(),
+          })
+        )
+        .mutation(async ({ input, ctx }) => {
+          if (ctx.user.role !== "admin") {
+            throw new TRPCError({ code: "FORBIDDEN" });
+          }
+          const postId = await createBlogPost({
+            ...input,
+            authorId: ctx.user.id,
+          });
+          return { id: postId };
+        }),
+      update: protectedProcedure
+        .input(
+          z.object({
+            id: z.number(),
+            title: z.string().optional(),
+            slug: z.string().optional(),
+            excerpt: z.string().optional(),
+            content: z.string().optional(),
+            coverImage: z.string().optional(),
+            category: z.string().optional(),
+            tags: z.string().optional(),
+            metaTitle: z.string().optional(),
+            metaDescription: z.string().optional(),
+            status: z.enum(["draft", "published"]).optional(),
+            publishedAt: z.date().optional(),
+          })
+        )
+        .mutation(async ({ input, ctx }) => {
+          if (ctx.user.role !== "admin") {
+            throw new TRPCError({ code: "FORBIDDEN" });
+          }
+          const { id, ...updates } = input;
+          await updateBlogPost(id, updates);
+          return { success: true };
+        }),
+    }),
   }),
 });
 

@@ -1,7 +1,78 @@
 import MultiStepForm from "@/components/MultiStepForm";
+import { trpc } from "@/lib/trpc";
+import { Link } from "wouter";
+import { Calendar, ArrowRight, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Shield, DollarSign, Clock, CheckCircle, Star, Users, Award, Lock } from "lucide-react";
+
+function BlogPreview() {
+  const { data: posts, isLoading } = trpc.blog.recent.useQuery({ limit: 3 });
+
+  if (isLoading || !posts || posts.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className="py-20 bg-background">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-bold mb-4">Latest Insurance Tips & News</h2>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Stay informed with expert advice on saving money and choosing the right car insurance.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {posts.map((post) => (
+            <Link key={post.id} href={`/blog/${post.slug}`}>
+              <a className="block bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow h-full">
+                {post.coverImage && (
+                  <img
+                    src={post.coverImage}
+                    alt={post.title}
+                    className="w-full h-48 object-cover"
+                  />
+                )}
+                <div className="p-6">
+                  {post.category && (
+                    <span className="inline-block px-3 py-1 bg-primary/10 text-primary text-sm font-semibold rounded-full mb-3">
+                      {post.category}
+                    </span>
+                  )}
+                  <h3 className="text-xl font-bold mb-3 hover:text-primary transition-colors line-clamp-2">
+                    {post.title}
+                  </h3>
+                  {post.excerpt && (
+                    <p className="text-muted-foreground mb-4 line-clamp-3">{post.excerpt}</p>
+                  )}
+                  <div className="flex items-center justify-between text-sm text-muted-foreground">
+                    <div className="flex items-center">
+                      <Calendar className="w-4 h-4 mr-1" />
+                      {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : ""}
+                    </div>
+                    <div className="flex items-center text-primary font-semibold">
+                      Read more <ArrowRight className="w-4 h-4 ml-1" />
+                    </div>
+                  </div>
+                </div>
+              </a>
+            </Link>
+          ))}
+        </div>
+
+        <div className="text-center mt-12">
+          <a
+            href="/blog"
+            className="inline-flex items-center text-primary font-semibold hover:underline"
+          >
+            View all articles <ChevronRight className="w-5 h-5 ml-1" />
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export default function Home() {
   const scrollToForm = () => {
@@ -226,8 +297,11 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Blog Preview Section */}
+      <BlogPreview />
+
       {/* FAQ Section */}
-      <section className="py-16 md:py-20 bg-background">
+      <section className="py-16 md:py-20 bg-background" id="faq">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Frequently Asked Questions</h2>
@@ -322,17 +396,22 @@ export default function Home() {
               <h4 className="font-bold mb-4">Resources</h4>
               <ul className="space-y-2 text-sm opacity-80">
                 <li>
-                  <a href="#" className="hover:opacity-100">
+                  <a href="/about" className="hover:opacity-100">
                     About Us
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:opacity-100">
+                  <a href="/contact" className="hover:opacity-100">
                     Contact
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:opacity-100">
+                  <a href="/blog" className="hover:opacity-100">
+                    Blog
+                  </a>
+                </li>
+                <li>
+                  <a href="#faq" className="hover:opacity-100">
                     FAQ
                   </a>
                 </li>

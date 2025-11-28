@@ -1,6 +1,7 @@
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, leads, InsertLead } from "../drizzle/schema";
+import { contactMessages, InsertContactMessage, blogPosts, InsertBlogPost } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -136,4 +137,105 @@ export async function updateLeadStatus(
       sentAt: status === "sent" ? new Date() : undefined,
     })
     .where(eq(leads.id, id));
+}
+
+/**
+ * Insert a new contact message
+ */
+export async function insertContactMessage(message: InsertContactMessage): Promise<number> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.insert(contactMessages).values(message);
+  return Number(result[0].insertId);
+}
+
+/**
+ * Get all published blog posts
+ */
+export async function getPublishedBlogPosts() {
+  const db = await getDb();
+  if (!db) {
+    return [];
+  }
+
+  return await db
+    .select()
+    .from(blogPosts)
+    .where(eq(blogPosts.status, "published"))
+    .orderBy(desc(blogPosts.publishedAt));
+}
+
+/**
+ * Get blog post by slug
+ */
+export async function getBlogPostBySlug(slug: string) {
+  const db = await getDb();
+  if (!db) {
+    return undefined;
+  }
+
+  const result = await db
+    .select()
+    .from(blogPosts)
+    .where(eq(blogPosts.slug, slug))
+    .limit(1);
+
+  return result.length > 0 ? result[0] : undefined;
+}
+
+/**
+ * Get recent blog posts for homepage
+ */
+export async function getRecentBlogPosts(limit: number = 3) {
+  const db = await getDb();
+  if (!db) {
+    return [];
+  }
+
+  return await db
+    .select()
+    .from(blogPosts)
+    .where(eq(blogPosts.status, "published"))
+    .orderBy(desc(blogPosts.publishedAt))
+    .limit(limit);
+}
+
+/**
+ * Create a new blog post
+ */
+export async function createBlogPost(post: InsertBlogPost): Promise<number> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.insert(blogPosts).values(post);
+  return Number(result[0].insertId);
+}
+
+/**
+ * Update a blog post
+ */
+export async function updateBlogPost(id: number, post: Partial<InsertBlogPost>) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  await db.update(blogPosts).set(post).where(eq(blogPosts.id, id));
+}
+
+/**
+ * Get all blog posts (including drafts) for admin
+ */
+export async function getAllBlogPosts() {
+  const db = await getDb();
+  if (!db) {
+    return [];
+  }
+
+  return await db.select().from(blogPosts).orderBy(desc(blogPosts.createdAt));
 }

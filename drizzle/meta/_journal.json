@@ -15,6 +15,13 @@
       "when": 1764336781500,
       "tag": "0001_broken_shinko_yamashiro",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1764346359967,
+      "tag": "0002_fast_lila_cheney",
+      "breakpoints": true
     }
   ]
 }
