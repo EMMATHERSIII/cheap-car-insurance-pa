@@ -158,6 +158,12 @@ export default function MultiStepForm() {
   const submitLead = trpc.leads.submit.useMutation({
     onSuccess: (data) => {
       trackFormSubmission(data.leadId);
+      
+      // Track A/B test conversion
+      if ((window as any).__recordAbTestConversion) {
+        (window as any).__recordAbTestConversion(data.leadId);
+      }
+      
       // Start matching animation
       setIsMatching(true);
       

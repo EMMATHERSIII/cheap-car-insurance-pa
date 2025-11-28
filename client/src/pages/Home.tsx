@@ -1,11 +1,12 @@
-import MultiStepForm from "@/components/MultiStepForm";
+import { useState, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { Link } from "wouter";
 import { Calendar, ArrowRight, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Shield, DollarSign, Clock, CheckCircle, Star, Users, Award, Lock } from "lucide-react";
-
+import { useAbTest } from "@/hooks/useAbTest";
+import MultiStepForm from "@/components/MultiStepForm";
 function BlogPreview() {
   const { data: posts, isLoading } = trpc.blog.recent.useQuery({ limit: 3 });
 
@@ -75,6 +76,19 @@ function BlogPreview() {
 }
 
 export default function Home() {
+  const { variant, recordConversion } = useAbTest();
+  
+  // Store variant ID globally for MultiStepForm to access
+  if (variant) {
+    (window as any).__abTestVariantId = variant.id;
+    (window as any).__recordAbTestConversion = recordConversion;
+  }
+  
+  // Default content if no variant is assigned
+  const headline = variant?.headline || "Save Up to $847/Year on Car Insurance in Pennsylvania";
+  const subheadline = variant?.subheadline || "Compare quotes from top-rated insurance companies in minutes. No hidden fees, no obligations. Get the coverage you need at a price you'll love.";
+  const ctaText = variant?.ctaText || "Get My Free Quote";
+  
   const scrollToForm = () => {
     const formElement = document.getElementById("quote-form");
     if (formElement) {
@@ -112,15 +126,14 @@ export default function Home() {
                 <span className="text-sm font-semibold">Trusted by 50,000+ Pennsylvania Drivers</span>
               </div>
               <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
-                Save Up to <span className="text-primary">$847/Year</span> on Car Insurance in Pennsylvania
+                {headline}
               </h2>
               <p className="text-lg text-muted-foreground mb-8">
-                Compare quotes from top-rated insurance companies in minutes. No hidden fees, no obligations. Get the
-                coverage you need at a price you'll love.
+                {subheadline}
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button onClick={scrollToForm} size="lg" className="text-lg h-14 px-8">
-                  Get My Free Quote
+                  {ctaText}
                 </Button>
                 <Button onClick={scrollToForm} variant="outline" size="lg" className="text-lg h-14 px-8">
                   See How It Works

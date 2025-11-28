@@ -19,6 +19,16 @@ import {
 } from "./db";
 import { validateLeadForCompliance, distributeLeadToNetworks } from "./webhook";
 import { sendContactFormNotification } from "./email";
+import { assignVariant } from "./abtest";
+import {
+  getActiveAbTestVariants,
+  getAllAbTestVariants,
+  createAbTestVariant,
+  updateAbTestVariant,
+  deleteAbTestVariant,
+  trackAbTestEvent,
+  getAbTestAnalytics,
+} from "./db";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -223,6 +233,118 @@ export const appRouter = router({
           return { success: true };
         }),
     }),
+  }),
+
+  abtest: router({
+    // Get variant assignment for a session
+    getVariant: publicProcedure
+      .input(z.object({ sessionId: z.string() }))
+      .query(async ({ input }) => {
+        const variant = await assignVariant(input.sessionId);
+        return variant;
+      }),
+
+    // Track view event
+    trackView: publicProcedure
+      .input(
+        z.object({
+          variantId: z.number(),
+          sessionId: z.string(),
+          ipAddress: z.string().optional(),
+          userAgent: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        await trackAbTestEvent({
+          variantId: input.variantId,
+          eventType: "view",
+          sessionId: input.sessionId,
+          ipAddress: input.ipAddress,
+          userAgent: input.userAgent,
+        });
+        return { success: true };
+      }),
+
+    // Track conversion event
+    trackConversion: publicProcedure
+      .input(
+        z.object({
+          variantId: z.number(),
+          sessionId: z.string(),
+          leadId: z.number(),
+          ipAddress: z.string().optional(),
+          userAgent: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        await trackAbTestEvent({
+          variantId: input.variantId,
+          eventType: "conversion",
+          sessionId: input.sessionId,
+          leadId: input.leadId,
+          ipAddress: input.ipAddress,
+          userAgent: input.userAgent,
+        });
+        return { success: true };
+      }),
+
+    // Admin: Get all variants
+    getAllVariants: protectedProcedure.query(async () => {
+      return await getAllAbTestVariants();
+    }),
+
+    // Admin: Get analytics
+    getAnalytics: protectedProcedure.query(async () => {
+      return await getAbTestAnalytics();
+    }),
+
+    // Admin: Create variant
+    createVariant: protectedProcedure
+      .input(
+        z.object({
+          name: z.string(),
+          headline: z.string(),
+          subheadline: z.string().optional(),
+          ctaText: z.string(),
+          description: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const id = await createAbTestVariant({
+          ...input,
+          isActive: "yes",
+          isDefault: "no",
+        });
+        return { id };
+      }),
+
+    // Admin: Update variant
+    updateVariant: protectedProcedure
+      .input(
+        z.object({
+          id: z.number(),
+          name: z.string().optional(),
+          headline: z.string().optional(),
+          subheadline: z.string().optional(),
+          ctaText: z.string().optional(),
+          description: z.string().optional(),
+          isActive: z.enum(["yes", "no"]).optional(),
+          isDefault: z.enum(["yes", "no"]).optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const { id, ...data } = input;
+        await updateAbTestVariant(id, data);
+        return { success: true };
+      }),
+
+    // Admin: Delete variant
+    deleteVariant: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await deleteAbTestVariant(input.id);
+        return { success: true };
+      }),
   }),
 });
 

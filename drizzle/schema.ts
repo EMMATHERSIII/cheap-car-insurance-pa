@@ -105,3 +105,38 @@ export const leads = mysqlTable("leads", {
 
 export type Lead = typeof leads.$inferSelect;
 export type InsertLead = typeof leads.$inferInsert;
+/**
+ * A/B test variants for landing page optimization
+ */
+export const abTestVariants = mysqlTable("ab_test_variants", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 200 }).notNull(),
+  headline: varchar("headline", { length: 500 }).notNull(),
+  subheadline: text("subheadline"),
+  ctaText: varchar("ctaText", { length: 100 }).notNull(),
+  description: text("description"), // Internal notes about this variant
+  isActive: mysqlEnum("isActive", ["yes", "no"]).default("yes").notNull(),
+  isDefault: mysqlEnum("isDefault", ["yes", "no"]).default("no").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type AbTestVariant = typeof abTestVariants.$inferSelect;
+export type InsertAbTestVariant = typeof abTestVariants.$inferInsert;
+
+/**
+ * Track A/B test impressions and conversions
+ */
+export const abTestEvents = mysqlTable("ab_test_events", {
+  id: int("id").autoincrement().primaryKey(),
+  variantId: int("variantId").notNull().references(() => abTestVariants.id),
+  eventType: mysqlEnum("eventType", ["view", "conversion"]).notNull(),
+  sessionId: varchar("sessionId", { length: 100 }).notNull(), // Browser session ID
+  ipAddress: varchar("ipAddress", { length: 45 }),
+  userAgent: text("userAgent"),
+  leadId: int("leadId").references(() => leads.id), // Only for conversion events
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AbTestEvent = typeof abTestEvents.$inferSelect;
+export type InsertAbTestEvent = typeof abTestEvents.$inferInsert;

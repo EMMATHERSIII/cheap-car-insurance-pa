@@ -86,3 +86,14 @@
 - [x] Create admin interface to easily update CPA redirect URL
 - [x] Test CPA redirect flow
 - [x] Test email notifications
+
+## A/B Testing System
+- [x] Create database schema for test variants and tracking
+- [x] Build variant assignment logic (50/50 split)
+- [x] Create 3 initial test variants (Current, Aggressive, Trust-focused)
+- [x] Implement conversion tracking for each variant
+- [x] Build admin dashboard to view variant performance
+- [x] Add ability to create/edit/delete variants
+- [x] Add ability to declare winner and set default variant
+- [x] Track metrics: views, conversions, conversion rate per variant
+- [x] Test A/B system end-to-end

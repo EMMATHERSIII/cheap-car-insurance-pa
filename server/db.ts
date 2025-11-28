@@ -1,7 +1,7 @@
 import { eq, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, leads, InsertLead } from "../drizzle/schema";
-import { contactMessages, InsertContactMessage, blogPosts, InsertBlogPost } from "../drizzle/schema";
+import { contactMessages, InsertContactMessage, blogPosts, InsertBlogPost, abTestVariants, InsertAbTestVariant, abTestEvents, InsertAbTestEvent } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -238,4 +238,117 @@ export async function getAllBlogPosts() {
   }
 
   return await db.select().from(blogPosts).orderBy(desc(blogPosts.createdAt));
+}
+
+// A/B Testing functions
+export async function getActiveAbTestVariants() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const result = await db
+    .select()
+    .from(abTestVariants)
+    .where(eq(abTestVariants.isActive, "yes"));
+  
+  return result;
+}
+
+export async function getDefaultAbTestVariant() {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db
+    .select()
+    .from(abTestVariants)
+    .where(eq(abTestVariants.isDefault, "yes"))
+    .limit(1);
+  
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function getAllAbTestVariants() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const result = await db.select().from(abTestVariants);
+  return result;
+}
+
+export async function createAbTestVariant(data: InsertAbTestVariant) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(abTestVariants).values(data);
+  return Number(result[0].insertId);
+}
+
+export async function updateAbTestVariant(id: number, data: Partial<InsertAbTestVariant>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(abTestVariants).set(data).where(eq(abTestVariants.id, id));
+}
+
+export async function deleteAbTestVariant(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.delete(abTestVariants).where(eq(abTestVariants.id, id));
+}
+
+export async function trackAbTestEvent(data: InsertAbTestEvent) {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db.insert(abTestEvents).values(data);
+}
+
+export async function getAbTestAnalytics() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  // Get view and conversion counts for each variant
+  const result = await db
+    .select({
+      variantId: abTestVariants.id,
+      variantName: abTestVariants.name,
+      headline: abTestVariants.headline,
+      ctaText: abTestVariants.ctaText,
+      isActive: abTestVariants.isActive,
+      isDefault: abTestVariants.isDefault,
+    })
+    .from(abTestVariants);
+  
+  const analytics = await Promise.all(
+    result.map(async (variant) => {
+      const views = await db
+        .select()
+        .from(abTestEvents)
+        .where(
+          eq(abTestEvents.variantId, variant.variantId) &&
+          eq(abTestEvents.eventType, "view")
+        );
+      
+      const conversions = await db
+        .select()
+        .from(abTestEvents)
+        .where(
+          eq(abTestEvents.variantId, variant.variantId) &&
+          eq(abTestEvents.eventType, "conversion")
+        );
+      
+      const viewCount = views.length;
+      const conversionCount = conversions.length;
+      const conversionRate = viewCount > 0 ? (conversionCount / viewCount) * 100 : 0;
+      
+      return {
+        ...variant,
+        views: viewCount,
+        conversions: conversionCount,
+        conversionRate: parseFloat(conversionRate.toFixed(2)),
+      };
+    })
+  );
+  
+  return analytics;
 }
