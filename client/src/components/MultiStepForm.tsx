@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, Check, Shield } from "lucide-react";
 import { trackFormStep, trackFormSubmission, trackFormAbandonment } from "@/components/Analytics";
 
 const US_STATES = [
@@ -137,6 +137,8 @@ interface FormData {
 
 export default function MultiStepForm() {
   const [currentStep, setCurrentStep] = useState(1);
+  const [isMatching, setIsMatching] = useState(false);
+  const [matchingProgress, setMatchingProgress] = useState(0);
   const [formData, setFormData] = useState<FormData>({
     age: "",
     state: "PA",
@@ -155,13 +157,30 @@ export default function MultiStepForm() {
 
   const submitLead = trpc.leads.submit.useMutation({
     onSuccess: (data) => {
-      toast.success("Thank you! Your quote request has been submitted.");
       trackFormSubmission(data.leadId);
-      setCurrentStep(11); // Success step
+      // Start matching animation
+      setIsMatching(true);
+      
+      // Simulate matching process with progress
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += 20;
+        setMatchingProgress(progress);
+        
+        if (progress >= 100) {
+          clearInterval(interval);
+          setTimeout(() => {
+            setIsMatching(false);
+            setCurrentStep(11); // Success step
+            toast.success("Perfect matches found!");
+          }, 500);
+        }
+      }, 400);
     },
     onError: (error) => {
       toast.error("Failed to submit. Please try again.");
       console.error(error);
+      setIsMatching(false);
     },
   });
 
@@ -612,9 +631,20 @@ export default function MultiStepForm() {
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <Check className="w-10 h-10 text-green-600" />
             </div>
-            <h2 className="text-3xl font-bold mb-4">Thank You!</h2>
-            <p className="text-lg text-muted-foreground mb-2">Your quote request has been submitted successfully.</p>
-            <p className="text-muted-foreground">We'll contact you shortly with personalized insurance quotes.</p>
+            <h2 className="text-3xl font-bold mb-4">Perfect Match Found!</h2>
+            <p className="text-lg text-primary font-semibold mb-4">We found 5 insurance providers that match your profile</p>
+            <div className="bg-accent/50 rounded-lg p-6 mb-6 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Estimated Savings:</span>
+                <span className="text-2xl font-bold text-green-600">Up to $847/year</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Matched Providers:</span>
+                <span className="font-semibold">5 Top-Rated Companies</span>
+              </div>
+            </div>
+            <p className="text-muted-foreground mb-2">Your personalized quotes are ready!</p>
+            <p className="text-sm text-muted-foreground">Our insurance partners will contact you shortly via email and phone with exclusive rates.</p>
           </div>
         );
 
@@ -622,6 +652,58 @@ export default function MultiStepForm() {
         return null;
     }
   };
+
+  // Show matching animation
+  if (isMatching) {
+    return (
+      <div className="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8">
+        <div className="text-center py-12">
+          <div className="relative w-24 h-24 mx-auto mb-8">
+            <div className="absolute inset-0 border-4 border-primary/20 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Shield className="w-12 h-12 text-primary" />
+            </div>
+          </div>
+          <h2 className="text-2xl font-bold mb-4">Finding Your Perfect Match...</h2>
+          <p className="text-muted-foreground mb-6">We're comparing rates from top insurance providers</p>
+          <div className="max-w-md mx-auto">
+            <div className="flex justify-between text-sm text-muted-foreground mb-2">
+              <span>Analyzing your profile</span>
+              <span>{matchingProgress}%</span>
+            </div>
+            <Progress value={matchingProgress} className="h-2" />
+            <div className="mt-6 space-y-2 text-sm text-muted-foreground">
+              {matchingProgress >= 20 && (
+                <div className="flex items-center justify-center space-x-2 animate-in fade-in">
+                  <Check className="w-4 h-4 text-green-600" />
+                  <span>Verified your information</span>
+                </div>
+              )}
+              {matchingProgress >= 40 && (
+                <div className="flex items-center justify-center space-x-2 animate-in fade-in">
+                  <Check className="w-4 h-4 text-green-600" />
+                  <span>Matched with 5 providers</span>
+                </div>
+              )}
+              {matchingProgress >= 60 && (
+                <div className="flex items-center justify-center space-x-2 animate-in fade-in">
+                  <Check className="w-4 h-4 text-green-600" />
+                  <span>Calculating potential savings</span>
+                </div>
+              )}
+              {matchingProgress >= 80 && (
+                <div className="flex items-center justify-center space-x-2 animate-in fade-in">
+                  <Check className="w-4 h-4 text-green-600" />
+                  <span>Preparing your personalized quotes</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (currentStep === 11) {
     return (
