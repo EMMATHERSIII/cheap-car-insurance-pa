@@ -1,0 +1,63 @@
+# Project TODO
+
+## Database & Backend
+- [x] Create leads table schema with all required fields
+- [x] Implement lead submission API endpoint
+- [x] Add webhook/API integration for CPA networks
+- [x] Implement anti-fraud and bot protection measures
+- [x] Add lead validation and sanitization
+
+## Multi-Step Form
+- [x] Create multi-step form component with progress indicator
+- [x] Step 1: Age input
+- [x] Step 2: State selection
+- [x] Step 3: ZIP code input
+- [x] Step 4: Vehicle type selection
+- [x] Step 5: Vehicle year input
+- [x] Step 6: Accidents in last 3 months (Yes/No)
+- [x] Step 7: Current insurance company dropdown
+- [x] Step 8: Current insurance type/coverage
+- [x] Step 9: Ownership status (Financed/Owned/Leased)
+- [x] Step 10: Contact details (final step)
+- [x] Add form validation for each step
+- [x] Implement mobile-first responsive design
+- [x] Add smooth transitions between steps
+
+## Landing Page
+- [x] Create modern, clean UI design
+- [x] Add hero section with strong CTA
+- [x] Add trust indicators and badges
+- [x] Add benefits/features section
+- [x] Add testimonials or social proof
+- [x] Add FAQ section
+- [x] Implement responsive design
+- [x] Optimize for fast loading speed
+
+## Tracking & Analytics
+- [x] Implement Google Tag Manager integration
+- [x] Add conversion tracking events
+- [x] Track form step completions
+- [x] Track form abandonment points
+
+## Legal & Compliance
+- [x] Create Privacy Policy page
+- [x] Create Terms of Service page
+- [x] Add GDPR/CCPA compliance notices
+- [x] Add cookie consent banner
+- [x] Create compliant footer with all required links
+- [x] Ensure CPA network compliance standards
+
+## Performance & SEO
+- [x] Optimize images and assets
+- [x] Implement lazy loading
+- [x] Add meta tags for SEO
+- [x] Optimize Core Web Vitals
+- [x] Test mobile performance
+- [ ] Add schema markup for insurance
+
+## Testing & Quality
+- [x] Write unit tests for lead submission
+- [x] Test form validation
+- [ ] Test webhook integration (requires webhook URLs)
+- [ ] Cross-browser testing
+- [ ] Mobile device testing
