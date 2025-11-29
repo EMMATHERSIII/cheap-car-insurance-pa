@@ -105,7 +105,7 @@ export default function Home() {
             <div className="flex items-center space-x-2">
               <Shield className="w-8 h-8 text-primary" />
               <div>
-                <h1 className="text-xl font-bold text-foreground">CheapCarInsurancePennsylvania.com</h1>
+                <h1 className="text-xl font-bold text-foreground">Cheap Car Insurance Pennsylvania</h1>
                 <p className="text-xs text-muted-foreground">Your Trusted Insurance Partner</p>
               </div>
             </div>
