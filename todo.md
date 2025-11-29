@@ -125,3 +125,6 @@
 - [x] Write installation guide for Hostinger
 - [x] Create database import SQL file
 - [x] Package all files for download
+
+## Bug Fixes
+- [x] Fix nested anchor tag error on homepage
