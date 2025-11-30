@@ -26,7 +26,7 @@ function BlogPreview() {
 
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {posts.map((post) => (
-            <Link key={post.id} href={`/blog/${post.slug}`} className="block bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow h-full">
+            <Link key={post.id} to={`/blog/${post.slug}`} className="block bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow h-full">
                 {post.coverImage && (
                   <img
                     src={post.coverImage}
