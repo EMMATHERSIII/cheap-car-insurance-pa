@@ -168,3 +168,13 @@
 - [x] Document CPA_REDIRECT_URL setup in admin guide
 - [ ] Add support for multiple CPA networks (A/B rotation)
 - [ ] Create admin panel to manage CPA links easily
+
+## Custom Notification System
+- [x] Determine notification types needed (all three types)
+- [x] Add owner notification for new lead submissions (via Manus notification API)
+- [x] Add owner notification for contact form submissions (already exists, enhance it)
+- [x] Create social proof notification component for visitors
+- [x] Add email auto-responder for lead submissions (ready, needs email service)
+- [x] Add email follow-up system (24h after submission) (ready, needs email service)
+- [ ] Create notification settings in admin panel (optional, for future)
+- [x] Test all notification types

@@ -18,7 +18,8 @@ import {
   getAllBlogPosts,
 } from "./db";
 import { validateLeadForCompliance, distributeLeadToNetworks } from "./webhook";
-import { sendContactFormNotification } from "./email";
+import { sendContactFormNotification, sendLeadNotificationToOwner, sendLeadConfirmationEmail } from "./email";
+import { notifyOwner } from "./_core/notification";
 import { assignVariant } from "./abtest";
 import {
   getActiveAbTestVariants,
@@ -134,6 +135,22 @@ export const appRouter = router({
         const lead = await getLeadById(leadId);
         
         if (lead) {
+          // Send notification to owner
+          notifyOwner({
+            title: "🎉 New Lead Received!",
+            content: `${input.firstName} ${input.lastName} from ${input.zipCode} just submitted a quote request. Email: ${input.email}, Phone: ${input.phone}`
+          }).catch(err => console.error("Failed to notify owner:", err));
+
+          // Send email notification to owner
+          sendLeadNotificationToOwner(lead).catch(err => 
+            console.error("Failed to send email to owner:", err)
+          );
+
+          // Send confirmation email to customer
+          sendLeadConfirmationEmail(lead).catch(err => 
+            console.error("Failed to send confirmation email:", err)
+          );
+          
           // Validate lead for compliance
           const validation = validateLeadForCompliance(lead);
           

@@ -8,6 +8,7 @@ import { Shield, DollarSign, Clock, CheckCircle, Star, Users, Award, Lock } from
 import { useAbTest } from "@/hooks/useAbTest";
 import MultiStepForm from "@/components/MultiStepForm";
 import { Schema } from "@/components/Schema";
+import { SocialProofNotification } from "@/components/SocialProofNotification";
 function BlogPreview() {
   const { data: posts, isLoading } = trpc.blog.recent.useQuery({ limit: 3 });
 
@@ -127,6 +128,9 @@ export default function Home() {
       <Schema type="organization" data={{}} />
       <Schema type="localBusiness" data={{}} />
       <Schema type="faq" data={faqData} />
+      
+      {/* Social Proof Notifications */}
+      <SocialProofNotification />
       {/* Header */}
       <header className="border-b bg-white sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4">
