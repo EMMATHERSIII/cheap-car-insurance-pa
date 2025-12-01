@@ -1,13 +1,41 @@
-import { Shield, Calendar, ArrowLeft } from "lucide-react";
+import { Shield, Calendar, ArrowLeft, Share2, Facebook, Twitter, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
-import { useRoute } from "wouter";
+import { useRoute, Link } from "wouter";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Schema } from "@/components/Schema";
 
 export default function BlogPost() {
   const [, params] = useRoute("/blog/:slug");
   const slug = params?.slug || "";
 
   const { data: post, isLoading } = trpc.blog.getBySlug.useQuery({ slug });
+  const { data: relatedArticles } = trpc.blog.related.useQuery({ slug }, { enabled: !!post });
+
+  const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+  const shareTitle = post?.title || "";
+
+  const handleShare = (platform: string) => {
+    const encodedUrl = encodeURIComponent(shareUrl);
+    const encodedTitle = encodeURIComponent(shareTitle);
+    
+    let shareLink = "";
+    switch (platform) {
+      case "facebook":
+        shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+        break;
+      case "twitter":
+        shareLink = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`;
+        break;
+      case "linkedin":
+        shareLink = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`;
+        break;
+    }
+    
+    if (shareLink) {
+      window.open(shareLink, "_blank", "width=600,height=400");
+    }
+  };
 
   if (isLoading) {
     return (
@@ -82,6 +110,21 @@ export default function BlogPost() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Article Schema */}
+      {post && (
+        <Schema
+          type="article"
+          data={{
+            title: post.title,
+            excerpt: post.excerpt,
+            metaDescription: post.metaDescription,
+            coverImage: post.coverImage,
+            publishedAt: post.publishedAt,
+            updatedAt: post.updatedAt,
+            slug: post.slug,
+          }}
+        />
+      )}
       {/* Header */}
       <header className="border-b bg-white sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4">
@@ -123,14 +166,45 @@ export default function BlogPost() {
           <h1 className="text-5xl font-bold mb-6">{post.title}</h1>
 
           {/* Meta */}
-          <div className="flex items-center space-x-4 text-muted-foreground mb-8">
-            <div className="flex items-center">
-              <Calendar className="w-4 h-4 mr-2" />
-              {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              }) : "Draft"}
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center space-x-4 text-muted-foreground">
+              <div className="flex items-center">
+                <Calendar className="w-4 h-4 mr-2" />
+                {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                }) : "Draft"}
+              </div>
+            </div>
+
+            {/* Social Share Buttons */}
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-muted-foreground mr-2">Share:</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleShare("facebook")}
+                className="h-8 w-8 p-0"
+              >
+                <Facebook className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleShare("twitter")}
+                className="h-8 w-8 p-0"
+              >
+                <Twitter className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleShare("linkedin")}
+                className="h-8 w-8 p-0"
+              >
+                <Linkedin className="w-4 h-4" />
+              </Button>
             </div>
           </div>
 
@@ -148,23 +222,100 @@ export default function BlogPost() {
             <div dangerouslySetInnerHTML={{ __html: post.content }} />
           </div>
 
-          {/* CTA */}
-          <div className="mt-16 bg-accent/50 rounded-2xl p-8 text-center">
-            <h2 className="text-2xl font-bold mb-4">Ready to Save on Car Insurance?</h2>
-            <p className="text-muted-foreground mb-6">
-              Get personalized quotes from top providers in just 2 minutes.
+          {/* CTA Button */}
+          <div className="mt-12 bg-gradient-to-r from-primary to-primary/80 rounded-2xl p-8 text-center text-white">
+            <h2 className="text-3xl font-bold mb-4">Ready to Save on Your Car Insurance?</h2>
+            <p className="text-lg mb-6 opacity-90">
+              Get personalized quotes from top Pennsylvania providers in just 2 minutes.
             </p>
-            <Button asChild size="lg">
-              <a href="/">Get Your Free Quote Now</a>
+            <Button asChild size="lg" variant="secondary" className="text-lg px-8 py-6">
+              <a href="/">Get My Quote Now →</a>
             </Button>
+          </div>
+
+          {/* Related Articles */}
+          {relatedArticles && relatedArticles.length > 0 && (
+            <div className="mt-16">
+              <h2 className="text-3xl font-bold mb-8">Related Articles</h2>
+              <div className="grid md:grid-cols-3 gap-6">
+                {relatedArticles.map((article) => (
+                  <Card key={article.slug} className="hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <CardTitle className="text-lg">
+                        <Link href={`/blog/${article.slug}`} className="hover:text-primary transition-colors">
+                          {article.title}
+                        </Link>
+                      </CardTitle>
+                    </CardHeader>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Author Box */}
+          <div className="mt-16 border-t pt-8">
+            <div className="flex items-start space-x-4">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <Shield className="w-8 h-8 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg mb-2">About CheapCarInsurancePennsylvania.com</h3>
+                <p className="text-muted-foreground">
+                  We're dedicated to helping Pennsylvania drivers find affordable car insurance coverage. Our team of insurance experts provides comprehensive guides, tips, and comparisons to help you make informed decisions about your auto insurance needs.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Disclaimer */}
+          <div className="mt-8 p-4 bg-muted/50 rounded-lg text-sm text-muted-foreground">
+            <p>
+              <strong>Disclaimer:</strong> CheapCarInsurancePennsylvania.com is an insurance lead generation service. We are not an insurance company and do not sell insurance policies directly. We connect consumers with insurance providers and may receive compensation for qualified leads.
+            </p>
           </div>
         </div>
       </article>
 
       {/* Footer */}
-      <footer className="bg-foreground text-background py-8">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-sm opacity-80">&copy; 2025 CheapCarInsurancePennsylvania.com. All rights reserved.</p>
+      <footer className="bg-foreground text-background py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <div className="flex items-center space-x-2 mb-4">
+                <Shield className="w-6 h-6" />
+                <span className="font-bold">CheapCarInsurancePennsylvania.com</span>
+              </div>
+              <p className="text-sm opacity-80">
+                Your trusted partner for finding affordable car insurance in Pennsylvania.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-bold mb-4">Quick Links</h3>
+              <ul className="space-y-2 text-sm opacity-80">
+                <li><a href="/" className="hover:opacity-100">Home</a></li>
+                <li><a href="/blog" className="hover:opacity-100">Blog</a></li>
+                <li><a href="/about" className="hover:opacity-100">About Us</a></li>
+                <li><a href="/contact" className="hover:opacity-100">Contact</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-bold mb-4">Legal</h3>
+              <ul className="space-y-2 text-sm opacity-80">
+                <li><a href="/privacy" className="hover:opacity-100">Privacy Policy</a></li>
+                <li><a href="/terms" className="hover:opacity-100">Terms of Service</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-bold mb-4">Contact</h3>
+              <p className="text-sm opacity-80">
+                Email: info@cheapcarinsurancepennsylvania.com
+              </p>
+            </div>
+          </div>
+          <div className="border-t border-background/20 pt-8 text-center">
+            <p className="text-sm opacity-80">&copy; 2025 CheapCarInsurancePennsylvania.com. All rights reserved.</p>
+          </div>
         </div>
       </footer>
     </div>

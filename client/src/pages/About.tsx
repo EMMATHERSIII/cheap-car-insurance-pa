@@ -41,6 +41,12 @@ export default function About() {
           <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12 mb-12">
             <h2 className="text-3xl font-bold mb-6">Our Story</h2>
             <div className="prose prose-lg max-w-none text-muted-foreground space-y-4">
+              <div className="bg-primary/10 border-l-4 border-primary p-6 rounded-r-lg mb-6">
+                <p className="font-semibold text-lg mb-2">Important Notice</p>
+                <p className="text-foreground">
+                  CheapCarInsurancePennsylvania.com is a lead generation and insurance comparison service. We are NOT an insurance company. We connect consumers with licensed insurance providers and may receive compensation for qualified leads.
+                </p>
+              </div>
               <p>
                 CheapCarInsurancePennsylvania.com was founded with a simple yet powerful vision: to make car insurance
                 shopping easier, faster, and more transparent for Pennsylvania drivers.
@@ -222,9 +228,58 @@ export default function About() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-foreground text-background py-8">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-sm opacity-80">&copy; 2025 CheapCarInsurancePennsylvania.com. All rights reserved.</p>
+      <footer className="bg-foreground text-background py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <div className="flex items-center space-x-2 mb-4">
+                <Shield className="w-6 h-6" />
+                <span className="font-bold">CheapCarInsurancePennsylvania.com</span>
+              </div>
+              <p className="text-sm opacity-80">
+                Your trusted partner for finding affordable car insurance in Pennsylvania.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-bold mb-4">Quick Links</h3>
+              <ul className="space-y-2 text-sm opacity-80">
+                <li><a href="/" className="hover:opacity-100">Home</a></li>
+                <li><a href="/blog" className="hover:opacity-100">Blog</a></li>
+                <li><a href="/about" className="hover:opacity-100">About Us</a></li>
+                <li><a href="/contact" className="hover:opacity-100">Contact</a></li>
+                <li><a href="/how-it-works" className="hover:opacity-100">How It Works</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-bold mb-4">Legal</h3>
+              <ul className="space-y-2 text-sm opacity-80">
+                <li><a href="/privacy" className="hover:opacity-100">Privacy Policy</a></li>
+                <li><a href="/terms" className="hover:opacity-100">Terms of Service</a></li>
+                <li><a href="/disclaimer" className="hover:opacity-100">Disclaimer</a></li>
+                <li><a href="/cookie-policy" className="hover:opacity-100">Cookie Policy</a></li>
+                <li><a href="/refund-policy" className="hover:opacity-100">Refund Policy</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-bold mb-4">Contact</h3>
+              <p className="text-sm opacity-80 mb-2">
+                <strong>Email:</strong><br />
+                info@cheapcarinsurancepennsylvania.com
+              </p>
+              <p className="text-sm opacity-80 mb-2">
+                <strong>Service Area:</strong><br />
+                Pennsylvania & Surrounding States
+              </p>
+              <p className="text-sm opacity-80">
+                <strong>Hours:</strong><br />
+                Monday - Friday: 9 AM - 5 PM EST
+              </p>
+            </div>
+          </div>
+          <div className="border-t border-background/20 pt-8 text-center">
+            <p className="text-sm opacity-80 mb-2">&copy; 2025 CheapCarInsurancePennsylvania.com. All rights reserved.</p>
+            <p className="text-xs opacity-60">We are not an insurance company. We are a lead generation service that connects consumers with licensed insurance providers.</p>
+          </div>
         </div>
       </footer>
     </div>

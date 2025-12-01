@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Shield, DollarSign, Clock, CheckCircle, Star, Users, Award, Lock } from "lucide-react";
 import { useAbTest } from "@/hooks/useAbTest";
 import MultiStepForm from "@/components/MultiStepForm";
+import { Schema } from "@/components/Schema";
 function BlogPreview() {
   const { data: posts, isLoading } = trpc.blog.recent.useQuery({ limit: 3 });
 
@@ -94,8 +95,38 @@ export default function Home() {
     }
   };
 
+  // FAQ data for schema
+  const faqData = {
+    questions: [
+      {
+        question: "How much can I save on car insurance in Pennsylvania?",
+        answer: "Pennsylvania drivers can save an average of $400-$850 per year by comparing quotes from multiple insurance providers. Savings vary based on your driving history, coverage needs, and location."
+      },
+      {
+        question: "Is this service really free?",
+        answer: "Yes! Our quote comparison service is 100% free with no hidden fees or obligations. We're compensated by insurance providers when we connect them with qualified customers."
+      },
+      {
+        question: "How long does it take to get quotes?",
+        answer: "Our form takes just 2 minutes to complete. After submission, you'll typically receive quotes from insurance providers within 24-48 hours via phone or email."
+      },
+      {
+        question: "What information do I need to provide?",
+        answer: "You'll need basic information about yourself (age, location), your vehicle (year, make, model), your driving history, and current insurance details."
+      },
+      {
+        question: "Will this affect my credit score?",
+        answer: "No, requesting insurance quotes does not affect your credit score. Insurance quote requests are considered soft inquiries."
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      {/* Schema Markup */}
+      <Schema type="organization" data={{}} />
+      <Schema type="localBusiness" data={{}} />
+      <Schema type="faq" data={faqData} />
       {/* Header */}
       <header className="border-b bg-white sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4">

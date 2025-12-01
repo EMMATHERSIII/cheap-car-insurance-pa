@@ -174,6 +174,13 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return await getRecentBlogPosts(input?.limit);
       }),
+    related: publicProcedure
+      .input(z.object({ slug: z.string() }))
+      .query(async ({ input }) => {
+        const allPosts = await getPublishedBlogPosts();
+        const { getRelatedArticles } = await import("../shared/blog-links");
+        return getRelatedArticles(input.slug, allPosts);
+      }),
     admin: router({
       list: protectedProcedure.query(async ({ ctx }) => {
         if (ctx.user.role !== "admin") {

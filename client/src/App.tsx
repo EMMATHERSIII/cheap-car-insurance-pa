@@ -15,6 +15,10 @@ import BlogPost from "./pages/BlogPost";
 import BlogAdmin from "./pages/BlogAdmin";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import Disclaimer from "./pages/Disclaimer";
+import CookiePolicy from "./pages/CookiePolicy";
+import HowItWorks from "./pages/HowItWorks";
+import RefundPolicy from "./pages/RefundPolicy";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -29,6 +33,10 @@ function Router() {
       <Route path={"/admin/abtest"} component={AbTestAdmin} />
       <Route path={"/privacy"} component={Privacy} />
       <Route path={"/terms"} component={Terms} />
+      <Route path={"/disclaimer"} component={Disclaimer} />
+      <Route path={"/cookie-policy"} component={CookiePolicy} />
+      <Route path={"/how-it-works"} component={HowItWorks} />
+      <Route path={"/refund-policy"} component={RefundPolicy} />
       <Route path={"/404"} component={NotFound} />      {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>

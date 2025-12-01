@@ -1,0 +1,265 @@
+{
+  "query": "SELECT slug, title, category FROM blog_posts ORDER BY id DESC",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4VGETmSGRFvHYrB.root --database WFL2GeYUk6Uk7UT2Y8LCmo --execute SELECT slug, title, category FROM blog_posts ORDER BY id DESC",
+  "rows": [
+    {
+      "slug": "insurance-renewal-checklist",
+      "title": "Car Insurance Renewal: Checklist for Policy Review",
+      "category": "Insurance Basics"
+    },
+    {
+      "slug": "weather-related-insurance-claims",
+      "title": "Weather-Related Insurance Claims: What's Covered?",
+      "category": "Claims & Accidents"
+    },
+    {
+      "slug": "insurance-for-sports-cars",
+      "title": "Insuring High-Performance and Sports Cars",
+      "category": "Vehicle Types"
+    },
+    {
+      "slug": "pennsylvania-insurance-laws-complete-guide",
+      "title": "Pennsylvania Car Insurance Laws: A Complete Guide",
+      "category": "Pennsylvania Laws"
+    },
+    {
+      "slug": "insurance-for-college-students",
+      "title": "Car Insurance for College Students: Away-from-Home Discounts",
+      "category": "Driver Demographics"
+    },
+    {
+      "slug": "insurance-grace-period-missed-payment",
+      "title": "Insurance Grace Periods: What Happens If You Miss a Payment?",
+      "category": "Insurance Basics"
+    },
+    {
+      "slug": "non-owner-car-insurance-guide",
+      "title": "Non-Owner Car Insurance: Coverage When You Don't Own a Vehicle",
+      "category": "Coverage Types"
+    },
+    {
+      "slug": "insurance-for-part-time-uber-drivers",
+      "title": "Insurance for Part-Time Uber and Lyft Drivers",
+      "category": "Special Situations"
+    },
+    {
+      "slug": "top-pennsylvania-insurance-companies",
+      "title": "Top-Rated Car Insurance Companies in Pennsylvania",
+      "category": "Pennsylvania Laws"
+    },
+    {
+      "slug": "insurance-claim-process-expectations",
+      "title": "The Insurance Claim Process: What to Expect",
+      "category": "Claims & Accidents"
+    },
+    {
+      "slug": "pennsylvania-deer-collisions-insurance",
+      "title": "Deer Collisions in Pennsylvania: Insurance Coverage Explained",
+      "category": "Pennsylvania Laws"
+    },
+    {
+      "slug": "insurance-for-modified-cars",
+      "title": "Insurance for Modified and Customized Cars",
+      "category": "Vehicle Types"
+    },
+    {
+      "slug": "multi-car-insurance-discounts",
+      "title": "Multi-Car Insurance Discounts: Insuring Multiple Vehicles",
+      "category": "Money Saving Tips"
+    },
+    {
+      "slug": "good-student-discounts-save-insurance",
+      "title": "Good Student Discounts: How Students Can Save on Insurance",
+      "category": "Driver Demographics"
+    },
+    {
+      "slug": "insurance-payment-options-guide",
+      "title": "Car Insurance Payment Options: Finding the Best Plan",
+      "category": "Money Saving Tips"
+    },
+    {
+      "slug": "roadside-assistance-coverage-worth-it",
+      "title": "Roadside Assistance Coverage: Is It Worth Adding?",
+      "category": "Coverage Types"
+    },
+    {
+      "slug": "insurance-for-daily-commuters",
+      "title": "Car Insurance for Daily Commuters: Optimize Your Coverage",
+      "category": "Driver Demographics"
+    },
+    {
+      "slug": "pennsylvania-registration-insurance-requirements",
+      "title": "Pennsylvania Vehicle Registration and Insurance Requirements",
+      "category": "Pennsylvania Laws"
+    },
+    {
+      "slug": "insurance-for-luxury-vehicles",
+      "title": "Insuring Luxury Vehicles: What You Need to Know",
+      "category": "Vehicle Types"
+    },
+    {
+      "slug": "auto-insurance-myths-debunked",
+      "title": "Common Auto Insurance Myths Debunked",
+      "category": "Insurance Basics"
+    },
+    {
+      "slug": "pennsylvania-no-fault-insurance-explained",
+      "title": "Pennsylvania's No-Fault Insurance System Explained",
+      "category": "Pennsylvania Laws"
+    },
+    {
+      "slug": "umbrella-insurance-policy-guide",
+      "title": "Umbrella Insurance Policies: Extra Protection for Your Assets",
+      "category": "Coverage Types"
+    },
+    {
+      "slug": "married-couples-insurance-discounts",
+      "title": "Marriage and Car Insurance: How Getting Married Affects Your Rates",
+      "category": "Money Saving Tips"
+    },
+    {
+      "slug": "insurance-high-mileage-drivers",
+      "title": "Car Insurance for High-Mileage Drivers: Special Considerations",
+      "category": "Driver Demographics"
+    },
+    {
+      "slug": "electric-vehicle-insurance-guide",
+      "title": "Electric Vehicle Insurance: What Makes It Different?",
+      "category": "Vehicle Types"
+    },
+    {
+      "slug": "rental-car-insurance-coverage-guide",
+      "title": "Rental Car Insurance: Do You Really Need It?",
+      "category": "Coverage Types"
+    },
+    {
+      "slug": "insurance-after-dui-pennsylvania",
+      "title": "Car Insurance After a DUI in Pennsylvania: What to Expect",
+      "category": "Pennsylvania Laws"
+    },
+    {
+      "slug": "business-use-car-insurance-coverage",
+      "title": "Business Use Car Insurance: When Personal Coverage Isn't Enough",
+      "category": "Special Situations"
+    },
+    {
+      "slug": "military-veterans-insurance-discounts",
+      "title": "Car Insurance Discounts for Military Members and Veterans",
+      "category": "Money Saving Tips"
+    },
+    {
+      "slug": "pennsylvania-winter-driving-insurance",
+      "title": "Pennsylvania Winter Driving: Insurance Considerations",
+      "category": "Pennsylvania Laws"
+    },
+    {
+      "slug": "insurance-deductible-explained-choose-amount",
+      "title": "Understanding Insurance Deductibles: How to Choose the Right Amount",
+      "category": "Insurance Basics"
+    },
+    {
+      "slug": "teen-driver-insurance-costs-down",
+      "title": "Teen Driver Insurance: How to Keep Costs Down",
+      "category": "Driver Demographics"
+    },
+    {
+      "slug": "classic-car-insurance-vintage-vehicle",
+      "title": "Classic Car Insurance: Protecting Your Vintage Vehicle",
+      "category": "Vehicle Types"
+    },
+    {
+      "slug": "rideshare-insurance-uber-lyft-pennsylvania",
+      "title": "Rideshare Insurance for Uber and Lyft Drivers in Pennsylvania",
+      "category": "Special Situations"
+    },
+    {
+      "slug": "switching-insurance-companies-guide",
+      "title": "How to Switch Car Insurance Companies Without Losing Coverage",
+      "category": "Insurance Basics"
+    },
+    {
+      "slug": "gap-insurance-explained-do-you-need-it",
+      "title": "Gap Insurance Explained: Do You Need It?",
+      "category": "Coverage Types"
+    },
+    {
+      "slug": "best-insurance-new-drivers-guide",
+      "title": "Best Car Insurance for New Drivers: A Beginner's Guide",
+      "category": "Driver Demographics"
+    },
+    {
+      "slug": "traffic-violations-affect-insurance-rates",
+      "title": "How Traffic Violations Affect Your Insurance Rates",
+      "category": "Insurance Basics"
+    },
+    {
+      "slug": "uninsured-motorist-coverage-essential",
+      "title": "Uninsured Motorist Coverage: Why It's Essential in Pennsylvania",
+      "category": "Coverage Types"
+    },
+    {
+      "slug": "car-insurance-seniors-pennsylvania",
+      "title": "Car Insurance for Seniors in Pennsylvania: Special Considerations",
+      "category": "Driver Demographics"
+    },
+    {
+      "slug": "how-to-file-insurance-claim-guide",
+      "title": "How to File a Car Insurance Claim: Step-by-Step Guide",
+      "category": "Claims & Accidents"
+    },
+    {
+      "slug": "full-coverage-vs-liability-only-insurance",
+      "title": "Full Coverage vs Liability-Only Insurance: Which Do You Need?",
+      "category": "Coverage Types"
+    },
+    {
+      "slug": "top-insurance-discounts-you-might-miss",
+      "title": "Top 10 Car Insurance Discounts You Might Be Missing",
+      "category": "Money Saving Tips"
+    },
+    {
+      "slug": "sr22-insurance-pennsylvania-guide",
+      "title": "SR-22 Insurance in Pennsylvania: Everything You Need to Know",
+      "category": "Pennsylvania Laws"
+    },
+    {
+      "slug": "credit-score-affects-insurance-rates",
+      "title": "How Your Credit Score Affects Your Car Insurance Rates",
+      "category": "Insurance Basics"
+    },
+    {
+      "slug": "comprehensive-vs-collision-coverage-explained",
+      "title": "Comprehensive vs Collision Coverage: What's the Difference?",
+      "category": "Coverage Types"
+    },
+    {
+      "slug": "what-to-do-after-car-accident-pennsylvania",
+      "title": "What to Do After a Car Accident in Pennsylvania",
+      "category": "Claims & Accidents"
+    },
+    {
+      "slug": "best-insurance-young-drivers-pennsylvania",
+      "title": "Best Car Insurance Options for Young Drivers in Pennsylvania",
+      "category": "Driver Demographics"
+    },
+    {
+      "slug": "pennsylvania-minimum-insurance-requirements",
+      "title": "Understanding Pennsylvania's Minimum Car Insurance Requirements",
+      "category": "Pennsylvania Laws"
+    },
+    {
+      "slug": "how-to-lower-car-insurance-costs-pennsylvania",
+      "title": "How to Lower Your Car Insurance Costs in Pennsylvania",
+      "category": "Money Saving Tips"
+    },
+    {
+      "slug": "Pennsylvania Raises Accident Surcharge",
+      "title": "Pennsylvania Raises Accident Surcharge Threshold for Auto Insurance to $2,250",
+      "category": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "slug\ttitle\tcategory\ninsurance-renewal-checklist\tCar Insurance Renewal: Checklist for Policy Review\tInsurance Basics\nweather-related-insurance-claims\tWeather-Related Insurance Claims: What's Covered?\tClaims & Accidents\ninsurance-for-sports-cars\tInsuring High-Performance and Sports Cars\tVehicle Types\npennsylvania-insurance-laws-complete-guide\tPennsylvania Car Insurance Laws: A Complete Guide\tPennsylvania Laws\ninsurance-for-college-students\tCar Insurance for College Students: Away-from-Home Discounts\tDriver Demographics\ninsurance-grace-period-missed-payment\tInsurance Grace Periods: What Happens If You Miss a Payment?\tInsurance Basics\nnon-owner-car-insurance-guide\tNon-Owner Car Insurance: Coverage When You Don't Own a Vehicle\tCoverage Types\ninsurance-for-part-time-uber-drivers\tInsurance for Part-Time Uber and Lyft Drivers\tSpecial Situations\ntop-pennsylvania-insurance-companies\tTop-Rated Car Insurance Companies in Pennsylvania\tPennsylvania Laws\ninsurance-claim-process-expectations\tThe Insurance Claim Process: What to Expect\tClaims & Accidents\npennsylvania-deer-collisions-insurance\tDeer Collisions in Pennsylvania: Insurance Coverage Explained\tPennsylvania Laws\ninsurance-for-modified-cars\tInsurance for Modified and Customized Cars\tVehicle Types\nmulti-car-insurance-discounts\tMulti-Car Insurance Discounts: Insuring Multiple Vehicles\tMoney Saving Tips\ngood-student-discounts-save-insurance\tGood Student Discounts: How Students Can Save on Insurance\tDriver Demographics\ninsurance-payment-options-guide\tCar Insurance Payment Options: Finding the Best Plan\tMoney Saving Tips\nroadside-assistance-coverage-worth-it\tRoadside Assistance Coverage: Is It Worth Adding?\tCoverage Types\ninsurance-for-daily-commuters\tCar Insurance for Daily Commuters: Optimize Your Coverage\tDriver Demographics\npennsylvania-registration-insurance-requirements\tPennsylvania Vehicle Registration and Insurance Requirements\tPennsylvania Laws\ninsurance-for-luxury-vehicles\tInsuring Luxury Vehicles: What You Need to Know\tVehicle Types\nauto-insurance-myths-debunked\tCommon Auto Insurance Myths Debunked\tInsurance Basics\npennsylvania-no-fault-insurance-explained\tPennsylvania's No-Fault Insurance System Explained\tPennsylvania Laws\numbrella-insurance-policy-guide\tUmbrella Insurance Policies: Extra Protection for Your Assets\tCoverage Types\nmarried-couples-insurance-discounts\tMarriage and Car Insurance: How Getting Married Affects Your Rates\tMoney Saving Tips\ninsurance-high-mileage-drivers\tCar Insurance for High-Mileage Drivers: Special Considerations\tDriver Demographics\nelectric-vehicle-insurance-guide\tElectric Vehicle Insurance: What Makes It Different?\tVehicle Types\nrental-car-insurance-coverage-guide\tRental Car Insurance: Do You Really Need It?\tCoverage Types\ninsurance-after-dui-pennsylvania\tCar Insurance After a DUI in Pennsylvania: What to Expect\tPennsylvania Laws\nbusiness-use-car-insurance-coverage\tBusiness Use Car Insurance: When Personal Coverage Isn't Enough\tSpecial Situations\nmilitary-veterans-insurance-discounts\tCar Insurance Discounts for Military Members and Veterans\tMoney Saving Tips\npennsylvania-winter-driving-insurance\tPennsylvania Winter Driving: Insurance Considerations\tPennsylvania Laws\ninsurance-deductible-explained-choose-amount\tUnderstanding Insurance Deductibles: How to Choose the Right Amount\tInsurance Basics\nteen-driver-insurance-costs-down\tTeen Driver Insurance: How to Keep Costs Down\tDriver Demographics\nclassic-car-insurance-vintage-vehicle\tClassic Car Insurance: Protecting Your Vintage Vehicle\tVehicle Types\nrideshare-insurance-uber-lyft-pennsylvania\tRideshare Insurance for Uber and Lyft Drivers in Pennsylvania\tSpecial Situations\nswitching-insurance-companies-guide\tHow to Switch Car Insurance Companies Without Losing Coverage\tInsurance Basics\ngap-insurance-explained-do-you-need-it\tGap Insurance Explained: Do You Need It?\tCoverage Types\nbest-insurance-new-drivers-guide\tBest Car Insurance for New Drivers: A Beginner's Guide\tDriver Demographics\ntraffic-violations-affect-insurance-rates\tHow Traffic Violations Affect Your Insurance Rates\tInsurance Basics\nuninsured-motorist-coverage-essential\tUninsured Motorist Coverage: Why It's Essential in Pennsylvania\tCoverage Types\ncar-insurance-seniors-pennsylvania\tCar Insurance for Seniors in Pennsylvania: Special Considerations\tDriver Demographics\nhow-to-file-insurance-claim-guide\tHow to File a Car Insurance Claim: Step-by-Step Guide\tClaims & Accidents\nfull-coverage-vs-liability-only-insurance\tFull Coverage vs Liability-Only Insurance: Which Do You Need?\tCoverage Types\ntop-insurance-discounts-you-might-miss\tTop 10 Car Insurance Discounts You Might Be Missing\tMoney Saving Tips\nsr22-insurance-pennsylvania-guide\tSR-22 Insurance in Pennsylvania: Everything You Need to Know\tPennsylvania Laws\ncredit-score-affects-insurance-rates\tHow Your Credit Score Affects Your Car Insurance Rates\tInsurance Basics\ncomprehensive-vs-collision-coverage-explained\tComprehensive vs Collision Coverage: What's the Difference?\tCoverage Types\nwhat-to-do-after-car-accident-pennsylvania\tWhat to Do After a Car Accident in Pennsylvania\tClaims & Accidents\nbest-insurance-young-drivers-pennsylvania\tBest Car Insurance Options for Young Drivers in Pennsylvania\tDriver Demographics\npennsylvania-minimum-insurance-requirements\tUnderstanding Pennsylvania's Minimum Car Insurance Requirements\tPennsylvania Laws\nhow-to-lower-car-insurance-costs-pennsylvania\tHow to Lower Your Car Insurance Costs in Pennsylvania\tMoney Saving Tips\nPennsylvania Raises Accident Surcharge\tPennsylvania Raises Accident Surcharge Threshold for Auto Insurance to $2,250\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 1624
+}

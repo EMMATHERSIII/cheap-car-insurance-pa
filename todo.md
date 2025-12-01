@@ -136,3 +136,35 @@
 - [x] Backdate articles across last 6 months
 - [x] Insert all articles into database
 - [x] Verify all articles display correctly
+
+## SEO & Conversion Optimization
+- [x] Add "Get My Quote Now" CTA button at end of every blog article
+- [ ] Add internal linking between related articles (3-5 links per article)
+- [x] Add "Related Articles" section at end of each article
+- [x] Add social share buttons (Facebook, Twitter, LinkedIn) to articles
+- [ ] Add breadcrumb navigation
+- [x] Add author box in articles
+
+## Schema Markup & Technical SEO
+- [x] Add Organization schema (JSON-LD)
+- [x] Add Article schema for all blog posts
+- [x] Add FAQ schema on homepage
+- [x] Add LocalBusiness schema
+- [x] Create XML sitemap
+- [x] Create robots.txt file
+- [ ] Improve Open Graph tags for social sharing
+
+## Google Ads Compliance Pages
+- [x] Create Disclaimer page
+- [x] Create Cookie Policy page (separate from Privacy)
+- [x] Create How It Works page
+- [x] Create Refund/Cancellation Policy page
+- [x] Update About Us with more company details
+- [x] Add contact information (address, phone) to footer
+- [x] Add "We are not an insurance company" disclaimers
+- [x] Add clear service explanation
+
+## CPA Integration Improvements
+- [x] Document CPA_REDIRECT_URL setup in admin guide
+- [ ] Add support for multiple CPA networks (A/B rotation)
+- [ ] Create admin panel to manage CPA links easily
