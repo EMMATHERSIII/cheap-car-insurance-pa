@@ -1,7 +1,7 @@
 import { eq, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, leads, InsertLead } from "../drizzle/schema";
-import { contactMessages, InsertContactMessage, blogPosts, InsertBlogPost, abTestVariants, InsertAbTestVariant, abTestEvents, InsertAbTestEvent } from "../drizzle/schema";
+import { contactMessages, InsertContactMessage, blogPosts, InsertBlogPost, abTestVariants, InsertAbTestVariant, abTestEvents, InsertAbTestEvent, expressLeads, InsertExpressLead } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -351,4 +351,36 @@ export async function getAbTestAnalytics() {
   );
   
   return analytics;
+}
+
+// ===== Express Leads =====
+
+export async function createExpressLead(data: InsertExpressLead): Promise<number> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(expressLeads).values(data);
+  return Number(result[0].insertId);
+}
+
+export async function getExpressLeadById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const results = await db.select().from(expressLeads).where(eq(expressLeads.id, id)).limit(1);
+  return results[0] || null;
+}
+
+export async function getAllExpressLeads() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db.select().from(expressLeads).orderBy(desc(expressLeads.createdAt));
+}
+
+export async function updateExpressLeadStatus(id: number, status: "new" | "contacted" | "converted") {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(expressLeads).set({ status }).where(eq(expressLeads.id, id));
 }

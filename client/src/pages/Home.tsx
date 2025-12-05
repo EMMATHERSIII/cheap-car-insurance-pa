@@ -9,6 +9,7 @@ import { useAbTest } from "@/hooks/useAbTest";
 import MultiStepForm from "@/components/MultiStepForm";
 import { Schema } from "@/components/Schema";
 import { SocialProofNotification } from "@/components/SocialProofNotification";
+import { ExpressQuoteForm } from "@/components/ExpressQuoteForm";
 function BlogPreview() {
   const { data: posts, isLoading } = trpc.blog.recent.useQuery({ limit: 3 });
 
@@ -299,6 +300,11 @@ export default function Home() {
             </p>
           </div>
           <MultiStepForm />
+          
+          {/* Express Quote Form */}
+          <div className="mt-12 max-w-2xl mx-auto">
+            <ExpressQuoteForm />
+          </div>
         </div>
       </section>
 

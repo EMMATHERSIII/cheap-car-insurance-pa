@@ -10,6 +10,8 @@ import {
   createLead,
   getLeadById,
   updateLeadStatus,
+  createExpressLead,
+  getExpressLeadById,
   getPublishedBlogPosts,
   getBlogPostBySlug,
   getRecentBlogPosts,
@@ -79,6 +81,46 @@ export const appRouter = router({
   }),
 
   leads: router({
+    submitExpress: publicProcedure
+      .input(
+        z.object({
+          email: z.string().email().max(320),
+          phone: z.string().min(10).max(20),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        // Extract IP and user agent from request
+        const ipAddress = ctx.req.ip || (ctx.req.headers["x-forwarded-for"] as string) || "";
+        const userAgent = ctx.req.headers["user-agent"] || "";
+        const referrer = ctx.req.headers["referer"] || "";
+
+        // Create express lead in database
+        const expressLeadId = await createExpressLead({
+          email: input.email,
+          phone: input.phone,
+          ipAddress,
+          userAgent,
+          referrer,
+          status: "new",
+        });
+
+        // Get the full express lead object
+        const expressLead = await getExpressLeadById(expressLeadId);
+        
+        if (expressLead) {
+          // Send notification to owner
+          notifyOwner({
+            title: "⚡ Express Lead Received!",
+            content: `Quick quote request! Email: ${input.email}, Phone: ${input.phone}. They want to be contacted ASAP!`
+          }).catch((err: any) => console.error("Failed to notify owner:", err));
+        }
+
+        return {
+          success: true,
+          expressLeadId,
+        };
+      }),
+
     submit: publicProcedure
       .input(
         z.object({

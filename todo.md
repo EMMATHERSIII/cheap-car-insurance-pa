@@ -178,3 +178,11 @@
 - [x] Add email follow-up system (24h after submission) (ready, needs email service)
 - [ ] Create notification settings in admin panel (optional, for future)
 - [x] Test all notification types
+
+## Express Quick Quote Form
+- [x] Create ExpressQuoteForm component
+- [x] Add express_leads table to database schema
+- [x] Create backend endpoint for express lead submission
+- [x] Add express form below main form on homepage
+- [x] Send owner notification for express leads
+- [x] Test express form submission

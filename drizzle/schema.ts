@@ -140,3 +140,27 @@ export const abTestEvents = mysqlTable("ab_test_events", {
 
 export type AbTestEvent = typeof abTestEvents.$inferSelect;
 export type InsertAbTestEvent = typeof abTestEvents.$inferInsert;
+
+/**
+ * Express leads table for quick quote requests (email + phone only)
+ */
+export const expressLeads = mysqlTable("express_leads", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 320 }).notNull(),
+  phone: varchar("phone", { length: 20 }).notNull(),
+  // Tracking & metadata
+  ipAddress: varchar("ipAddress", { length: 45 }),
+  userAgent: text("userAgent"),
+  referrer: text("referrer"),
+  utmSource: varchar("utmSource", { length: 200 }),
+  utmMedium: varchar("utmMedium", { length: 200 }),
+  utmCampaign: varchar("utmCampaign", { length: 200 }),
+  // Status tracking
+  status: mysqlEnum("status", ["new", "contacted", "converted"]).default("new").notNull(),
+  notes: text("notes"), // Admin notes
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ExpressLead = typeof expressLeads.$inferSelect;
+export type InsertExpressLead = typeof expressLeads.$inferInsert;
