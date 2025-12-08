@@ -50,15 +50,15 @@ export default function BlogPost() {
         <header className="border-b bg-white sticky top-0 z-50 shadow-sm">
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
-              <a href="/" className="flex items-center space-x-2">
+              <Link href="/" className="flex items-center space-x-2">
                 <Shield className="w-8 h-8 text-primary" />
                 <div>
                   <h1 className="text-xl font-bold text-foreground">CheapCarInsurancePennsylvania.com</h1>
                   <p className="text-xs text-muted-foreground">Your Trusted Insurance Partner</p>
                 </div>
-              </a>
-              <Button asChild>
-                <a href="/">Get Free Quote</a>
+              </Link>
+            <Button asChild>
+              <Link href="/">Get Free Quote</Link>
               </Button>
             </div>
           </div>
@@ -87,15 +87,15 @@ export default function BlogPost() {
         <header className="border-b bg-white sticky top-0 z-50 shadow-sm">
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
-              <a href="/" className="flex items-center space-x-2">
+              <Link href="/" className="flex items-center space-x-2">
                 <Shield className="w-8 h-8 text-primary" />
                 <div>
                   <h1 className="text-xl font-bold text-foreground">CheapCarInsurancePennsylvania.com</h1>
                   <p className="text-xs text-muted-foreground">Your Trusted Insurance Partner</p>
                 </div>
-              </a>
+              </Link>
               <Button asChild>
-                <a href="/">Get Free Quote</a>
+                <Link href="/">Get Free Quote</Link>
               </Button>
             </div>
           </div>
@@ -107,7 +107,7 @@ export default function BlogPost() {
               The blog post you're looking for doesn't exist or has been removed.
             </p>
             <Button asChild>
-              <a href="/blog">Back to Blog</a>
+              <Link href="/blog">Back to Blog</Link>
             </Button>
           </div>
         </div>
@@ -144,15 +144,15 @@ export default function BlogPost() {
       <header className="border-b bg-white sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <a href="/" className="flex items-center space-x-2">
+            <Link href="/" className="flex items-center space-x-2">
               <Shield className="w-8 h-8 text-primary" />
               <div>
                 <h1 className="text-xl font-bold text-foreground">CheapCarInsurancePennsylvania.com</h1>
                 <p className="text-xs text-muted-foreground">Your Trusted Insurance Partner</p>
               </div>
-            </a>
+            </Link>
             <Button asChild>
-              <a href="/">Get Free Quote</a>
+              <Link href="/">Get Free Quote</Link>
             </Button>
           </div>
         </div>
@@ -167,13 +167,10 @@ export default function BlogPost() {
             { label: post.title }
           ]} />
           {/* Back Button */}
-          <a
-            href="/blog"
-            className="inline-flex items-center text-primary hover:underline mb-8"
-          >
+          <Link href="/blog" className="inline-flex items-center text-primary hover:underline mb-8">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Blog
-          </a>
+          </Link>
 
           {/* Category */}
           {post.category && (
@@ -252,7 +249,7 @@ export default function BlogPost() {
               Get personalized quotes from top Pennsylvania providers in just 2 minutes.
             </p>
             <Button asChild size="lg" variant="secondary" className="text-lg px-8 py-6">
-              <a href="/">Get My Quote Now →</a>
+              <Link href="/">Get My Quote Now →</Link>
             </Button>
           </div>
 
@@ -316,17 +313,17 @@ export default function BlogPost() {
             <div>
               <h3 className="font-bold mb-4">Quick Links</h3>
               <ul className="space-y-2 text-sm opacity-80">
-                <li><a href="/" className="hover:opacity-100">Home</a></li>
-                <li><a href="/blog" className="hover:opacity-100">Blog</a></li>
-                <li><a href="/about" className="hover:opacity-100">About Us</a></li>
-                <li><a href="/contact" className="hover:opacity-100">Contact</a></li>
+                <li><Link href="/" className="hover:opacity-100">Home</Link></li>
+                <li><Link href="/blog" className="hover:opacity-100">Blog</Link></li>
+                <li><Link href="/about" className="hover:opacity-100">About Us</Link></li>
+                <li><Link href="/contact" className="hover:opacity-100">Contact</Link></li>
               </ul>
             </div>
             <div>
               <h3 className="font-bold mb-4">Legal</h3>
               <ul className="space-y-2 text-sm opacity-80">
-                <li><a href="/privacy" className="hover:opacity-100">Privacy Policy</a></li>
-                <li><a href="/terms" className="hover:opacity-100">Terms of Service</a></li>
+                <li><Link href="/privacy" className="hover:opacity-100">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="hover:opacity-100">Terms of Service</Link></li>
               </ul>
             </div>
             <div>

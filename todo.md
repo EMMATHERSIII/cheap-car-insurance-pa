@@ -195,3 +195,6 @@
 - [x] Create Table of Contents component
 - [x] Add TOC to blog articles
 - [x] Test all SEO improvements
+
+## Bug Fixes
+- [x] Fix nested anchor tag error in Breadcrumbs component
