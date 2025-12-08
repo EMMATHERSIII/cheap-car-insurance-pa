@@ -186,3 +186,12 @@
 - [x] Add express form below main form on homepage
 - [x] Send owner notification for express leads
 - [x] Test express form submission
+
+## Week 1 SEO Improvements (Quick Wins)
+- [x] Create Breadcrumbs component
+- [x] Add breadcrumbs to all pages
+- [x] Add breadcrumb schema markup
+- [x] Add FAQ schema to blog articles
+- [x] Create Table of Contents component
+- [x] Add TOC to blog articles
+- [x] Test all SEO improvements

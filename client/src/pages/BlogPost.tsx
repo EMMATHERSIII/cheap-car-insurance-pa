@@ -4,6 +4,9 @@ import { trpc } from "@/lib/trpc";
 import { useRoute, Link } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Schema } from "@/components/Schema";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { extractFAQsFromContent, generateFAQSchema } from "../../../shared/faq-extractor";
+import { TableOfContents } from "@/components/TableOfContents";
 
 export default function BlogPost() {
   const [, params] = useRoute("/blog/:slug");
@@ -14,6 +17,10 @@ export default function BlogPost() {
 
   const shareUrl = typeof window !== "undefined" ? window.location.href : "";
   const shareTitle = post?.title || "";
+  
+  // Extract FAQs from content
+  const faqs = post ? extractFAQsFromContent(post.content) : [];
+  const faqSchema = generateFAQSchema(faqs);
 
   const handleShare = (platform: string) => {
     const encodedUrl = encodeURIComponent(shareUrl);
@@ -125,6 +132,14 @@ export default function BlogPost() {
           }}
         />
       )}
+      
+      {/* FAQ Schema */}
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
       {/* Header */}
       <header className="border-b bg-white sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4">
@@ -146,6 +161,11 @@ export default function BlogPost() {
       {/* Article */}
       <article className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
+          {/* Breadcrumbs */}
+          <Breadcrumbs items={[
+            { label: "Blog", href: "/blog" },
+            { label: post.title }
+          ]} />
           {/* Back Button */}
           <a
             href="/blog"
@@ -216,6 +236,9 @@ export default function BlogPost() {
               className="w-full h-96 object-cover rounded-2xl mb-8"
             />
           )}
+
+          {/* Table of Contents */}
+          <TableOfContents content={post.content} />
 
           {/* Content */}
           <div className="prose prose-lg max-w-none">

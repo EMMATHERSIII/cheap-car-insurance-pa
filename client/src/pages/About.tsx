@@ -1,5 +1,6 @@
 import { Shield, Target, Users, Award, TrendingDown, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 export default function About() {
   return (
@@ -25,6 +26,7 @@ export default function About() {
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-primary/10 via-background to-background py-16">
         <div className="container mx-auto px-4">
+          <Breadcrumbs items={[{ label: "About Us" }]} />
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-5xl font-bold mb-6">About Us</h1>
             <p className="text-xl text-muted-foreground">
