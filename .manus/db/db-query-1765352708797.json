@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE blog_posts SET content = REGEXP_REPLACE(content, '\\\\*\\\\*Category:\\\\*\\\\*[^-]*\\\\*\\\\*Published:\\\\*\\\\*[^-]*---\\\\s*', '') WHERE content LIKE '%**Category:**%**Published:**%'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4VGETmSGRFvHYrB.root --database WFL2GeYUk6Uk7UT2Y8LCmo --execute UPDATE blog_posts SET content = REGEXP_REPLACE(content, '\\\\*\\\\*Category:\\\\*\\\\*[^-]*\\\\*\\\\*Published:\\\\*\\\\*[^-]*---\\\\s*', '') WHERE content LIKE '%**Category:**%**Published:**%'",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 2409
+}

@@ -1,0 +1,15 @@
+{
+  "query": "SELECT id, title, SUBSTRING(content, 1, 150) as content_start FROM blog_posts WHERE title LIKE '%Deer Strike%' LIMIT 1",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4VGETmSGRFvHYrB.root --database WFL2GeYUk6Uk7UT2Y8LCmo --execute SELECT id, title, SUBSTRING(content, 1, 150) as content_start FROM blog_posts WHERE title LIKE '%Deer Strike%' LIMIT 1",
+  "rows": [
+    {
+      "id": "60005",
+      "title": "Deer Strike on Route 6: How Comprehensive Coverage Paid $8,000 for Pennsylvania's Most Common Winter Claim",
+      "content_start": "If you've driven in Pennsylvania for any length of time, you've probably seen them: deer standing at the edge of the road, their eyes glowing in your "
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tcontent_start\n60005\tDeer Strike on Route 6: How Comprehensive Coverage Paid $8,000 for Pennsylvania's Most Common Winter Claim\tIf you've driven in Pennsylvania for any length of time, you've probably seen them: deer standing at the edge of the road, their eyes glowing in your \n",
+  "stderr": "",
+  "execution_time_ms": 1842
+}
