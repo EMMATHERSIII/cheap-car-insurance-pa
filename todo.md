@@ -197,4 +197,5 @@
 - [x] Test all SEO improvements
 
 ## Bug Fixes
-- [x] Fix nested anchor tag error in Breadcrumbs component
+- [x] Fix nested anchor tag error in BlogPost component
+- [x] Find and fix all remaining nested anchor tags in all pages (Blog.tsx fixed)

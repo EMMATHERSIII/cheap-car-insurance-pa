@@ -12,15 +12,15 @@ export default function Blog() {
       <header className="border-b bg-white sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <a href="/" className="flex items-center space-x-2">
+            <Link href="/" className="flex items-center space-x-2">
               <Shield className="w-8 h-8 text-primary" />
               <div>
                 <h1 className="text-xl font-bold text-foreground">CheapCarInsurancePennsylvania.com</h1>
                 <p className="text-xs text-muted-foreground">Your Trusted Insurance Partner</p>
               </div>
-            </a>
+            </Link>
             <Button asChild>
-              <a href="/">Get Free Quote</a>
+              <Link href="/">Get Free Quote</Link>
             </Button>
           </div>
         </div>
@@ -57,8 +57,7 @@ export default function Blog() {
           ) : posts && posts.length > 0 ? (
             <div className="grid md:grid-cols-2 gap-8">
               {posts.map((post) => (
-                <Link key={post.id} href={`/blog/${post.slug}`}>
-                  <a className="block bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                <Link key={post.id} href={`/blog/${post.slug}`} className="block bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
                     {post.coverImage && (
                       <img
                         src={post.coverImage}
@@ -92,7 +91,6 @@ export default function Blog() {
                         </div>
                       </div>
                     </div>
-                  </a>
                 </Link>
               ))}
             </div>
@@ -106,7 +104,7 @@ export default function Blog() {
                 We're working on creating helpful content for you. Check back soon!
               </p>
               <Button asChild>
-                <a href="/">Get Your Free Quote</a>
+                <Link href="/">Get Your Free Quote</Link>
               </Button>
             </div>
           )}
@@ -122,7 +120,7 @@ export default function Blog() {
               Get personalized quotes from top providers in just 2 minutes.
             </p>
             <Button asChild size="lg" className="text-lg px-8">
-              <a href="/">Get Free Quote Now</a>
+              <Link href="/">Get Free Quote Now</Link>
             </Button>
           </div>
         </div>
