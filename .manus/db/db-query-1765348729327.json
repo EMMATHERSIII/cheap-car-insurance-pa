@@ -1,0 +1,35 @@
+{
+  "query": "SELECT id, title, slug FROM blog_posts LIMIT 5",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4VGETmSGRFvHYrB.root --database WFL2GeYUk6Uk7UT2Y8LCmo --execute SELECT id, title, slug FROM blog_posts LIMIT 5",
+  "rows": [
+    {
+      "id": "1",
+      "title": "Pennsylvania Raises Accident Surcharge Threshold for Auto Insurance to $2,250",
+      "slug": "Pennsylvania Raises Accident Surcharge"
+    },
+    {
+      "id": "30002",
+      "title": "How to Lower Your Car Insurance Costs in Pennsylvania",
+      "slug": "how-to-lower-car-insurance-costs-pennsylvania"
+    },
+    {
+      "id": "30003",
+      "title": "Understanding Pennsylvania's Minimum Car Insurance Requirements",
+      "slug": "pennsylvania-minimum-insurance-requirements"
+    },
+    {
+      "id": "30004",
+      "title": "Best Car Insurance Options for Young Drivers in Pennsylvania",
+      "slug": "best-insurance-young-drivers-pennsylvania"
+    },
+    {
+      "id": "30005",
+      "title": "What to Do After a Car Accident in Pennsylvania",
+      "slug": "what-to-do-after-car-accident-pennsylvania"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tslug\n1\tPennsylvania Raises Accident Surcharge Threshold for Auto Insurance to $2,250\tPennsylvania Raises Accident Surcharge\n30002\tHow to Lower Your Car Insurance Costs in Pennsylvania\thow-to-lower-car-insurance-costs-pennsylvania\n30003\tUnderstanding Pennsylvania's Minimum Car Insurance Requirements\tpennsylvania-minimum-insurance-requirements\n30004\tBest Car Insurance Options for Young Drivers in Pennsylvania\tbest-insurance-young-drivers-pennsylvania\n30005\tWhat to Do After a Car Accident in Pennsylvania\twhat-to-do-after-car-accident-pennsylvania\n",
+  "stderr": "",
+  "execution_time_ms": 1937
+}

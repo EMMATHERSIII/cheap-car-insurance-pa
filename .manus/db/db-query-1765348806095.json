@@ -1,0 +1,70 @@
+{
+  "query": "SELECT id, title, slug, CHAR_LENGTH(slug) as slug_length FROM blog_posts WHERE slug IS NOT NULL LIMIT 10",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4VGETmSGRFvHYrB.root --database WFL2GeYUk6Uk7UT2Y8LCmo --execute SELECT id, title, slug, CHAR_LENGTH(slug) as slug_length FROM blog_posts WHERE slug IS NOT NULL LIMIT 10",
+  "rows": [
+    {
+      "id": "1",
+      "title": "Pennsylvania Raises Accident Surcharge Threshold for Auto Insurance to $2,250",
+      "slug": "Pennsylvania Raises Accident Surcharge",
+      "slug_length": "38"
+    },
+    {
+      "id": "30002",
+      "title": "How to Lower Your Car Insurance Costs in Pennsylvania",
+      "slug": "how-to-lower-car-insurance-costs-pennsylvania",
+      "slug_length": "45"
+    },
+    {
+      "id": "30003",
+      "title": "Understanding Pennsylvania's Minimum Car Insurance Requirements",
+      "slug": "pennsylvania-minimum-insurance-requirements",
+      "slug_length": "43"
+    },
+    {
+      "id": "30004",
+      "title": "Best Car Insurance Options for Young Drivers in Pennsylvania",
+      "slug": "best-insurance-young-drivers-pennsylvania",
+      "slug_length": "41"
+    },
+    {
+      "id": "30005",
+      "title": "What to Do After a Car Accident in Pennsylvania",
+      "slug": "what-to-do-after-car-accident-pennsylvania",
+      "slug_length": "42"
+    },
+    {
+      "id": "30006",
+      "title": "Comprehensive vs Collision Coverage: What's the Difference?",
+      "slug": "comprehensive-vs-collision-coverage-explained",
+      "slug_length": "45"
+    },
+    {
+      "id": "30007",
+      "title": "How Your Credit Score Affects Your Car Insurance Rates",
+      "slug": "credit-score-affects-insurance-rates",
+      "slug_length": "36"
+    },
+    {
+      "id": "30008",
+      "title": "SR-22 Insurance in Pennsylvania: Everything You Need to Know",
+      "slug": "sr22-insurance-pennsylvania-guide",
+      "slug_length": "33"
+    },
+    {
+      "id": "30009",
+      "title": "Top 10 Car Insurance Discounts You Might Be Missing",
+      "slug": "top-insurance-discounts-you-might-miss",
+      "slug_length": "38"
+    },
+    {
+      "id": "30010",
+      "title": "Full Coverage vs Liability-Only Insurance: Which Do You Need?",
+      "slug": "full-coverage-vs-liability-only-insurance",
+      "slug_length": "41"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tslug\tslug_length\n1\tPennsylvania Raises Accident Surcharge Threshold for Auto Insurance to $2,250\tPennsylvania Raises Accident Surcharge\t38\n30002\tHow to Lower Your Car Insurance Costs in Pennsylvania\thow-to-lower-car-insurance-costs-pennsylvania\t45\n30003\tUnderstanding Pennsylvania's Minimum Car Insurance Requirements\tpennsylvania-minimum-insurance-requirements\t43\n30004\tBest Car Insurance Options for Young Drivers in Pennsylvania\tbest-insurance-young-drivers-pennsylvania\t41\n30005\tWhat to Do After a Car Accident in Pennsylvania\twhat-to-do-after-car-accident-pennsylvania\t42\n30006\tComprehensive vs Collision Coverage: What's the Difference?\tcomprehensive-vs-collision-coverage-explained\t45\n30007\tHow Your Credit Score Affects Your Car Insurance Rates\tcredit-score-affects-insurance-rates\t36\n30008\tSR-22 Insurance in Pennsylvania: Everything You Need to Know\tsr22-insurance-pennsylvania-guide\t33\n30009\tTop 10 Car Insurance Discounts You Might Be Missing\ttop-insurance-discounts-you-might-miss\t38\n30010\tFull Coverage vs Liability-Only Insurance: Which Do You Need?\tfull-coverage-vs-liability-only-insurance\t41\n",
+  "stderr": "",
+  "execution_time_ms": 1503
+}

@@ -1,0 +1,60 @@
+{
+  "query": "SELECT id, title, DATE_FORMAT(publishedAt, '%Y-%m-%d %H:%i:%s') as published_date FROM blog_posts ORDER BY publishedAt DESC LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4VGETmSGRFvHYrB.root --database WFL2GeYUk6Uk7UT2Y8LCmo --execute SELECT id, title, DATE_FORMAT(publishedAt, '%Y-%m-%d %H:%i:%s') as published_date FROM blog_posts ORDER BY publishedAt DESC LIMIT 10;",
+  "rows": [
+    {
+      "id": "60005",
+      "title": "Deer Strike on Route 6: How Comprehensive Coverage Paid $8,000 for Pennsylvania's Most Common Winter Claim",
+      "published_date": "2025-12-11 01:00:00"
+    },
+    {
+      "id": "60004",
+      "title": "Hit-and-Run in Dense Fog: How Uninsured Motorist Coverage Paid $25,000 When the Driver Fled",
+      "published_date": "2025-12-10 21:00:00"
+    },
+    {
+      "id": "60003",
+      "title": "Snowstorm Nightmare: When a Falling Tree Totaled a Parked Car—And Insurance Paid $12,000",
+      "published_date": "2025-12-10 17:00:00"
+    },
+    {
+      "id": "60002",
+      "title": "I-76 Ice Crash: How $45,000 in Insurance Coverage Saved a Pittsburgh Driver",
+      "published_date": "2025-12-10 13:00:00"
+    },
+    {
+      "id": "1",
+      "title": "Pennsylvania Raises Accident Surcharge Threshold for Auto Insurance to $2,250",
+      "published_date": "2025-11-28 19:39:14"
+    },
+    {
+      "id": "30051",
+      "title": "Car Insurance Renewal: Checklist for Policy Review",
+      "published_date": "2025-11-26 13:01:44"
+    },
+    {
+      "id": "30050",
+      "title": "Weather-Related Insurance Claims: What's Covered?",
+      "published_date": "2025-11-22 22:37:44"
+    },
+    {
+      "id": "30049",
+      "title": "Insuring High-Performance and Sports Cars",
+      "published_date": "2025-11-19 08:13:43"
+    },
+    {
+      "id": "30048",
+      "title": "Pennsylvania Car Insurance Laws: A Complete Guide",
+      "published_date": "2025-11-15 17:49:43"
+    },
+    {
+      "id": "30047",
+      "title": "Car Insurance for College Students: Away-from-Home Discounts",
+      "published_date": "2025-11-12 03:25:43"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tpublished_date\n60005\tDeer Strike on Route 6: How Comprehensive Coverage Paid $8,000 for Pennsylvania's Most Common Winter Claim\t2025-12-11 01:00:00\n60004\tHit-and-Run in Dense Fog: How Uninsured Motorist Coverage Paid $25,000 When the Driver Fled\t2025-12-10 21:00:00\n60003\tSnowstorm Nightmare: When a Falling Tree Totaled a Parked Car—And Insurance Paid $12,000\t2025-12-10 17:00:00\n60002\tI-76 Ice Crash: How $45,000 in Insurance Coverage Saved a Pittsburgh Driver\t2025-12-10 13:00:00\n1\tPennsylvania Raises Accident Surcharge Threshold for Auto Insurance to $2,250\t2025-11-28 19:39:14\n30051\tCar Insurance Renewal: Checklist for Policy Review\t2025-11-26 13:01:44\n30050\tWeather-Related Insurance Claims: What's Covered?\t2025-11-22 22:37:44\n30049\tInsuring High-Performance and Sports Cars\t2025-11-19 08:13:43\n30048\tPennsylvania Car Insurance Laws: A Complete Guide\t2025-11-15 17:49:43\n30047\tCar Insurance for College Students: Away-from-Home Discounts\t2025-11-12 03:25:43\n",
+  "stderr": "",
+  "execution_time_ms": 1622
+}

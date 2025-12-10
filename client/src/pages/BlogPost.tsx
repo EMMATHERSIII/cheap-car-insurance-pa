@@ -7,6 +7,7 @@ import { Schema } from "@/components/Schema";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { extractFAQsFromContent, generateFAQSchema } from "../../../shared/faq-extractor";
 import { TableOfContents } from "@/components/TableOfContents";
+import { FAQAccordion } from "@/components/FAQAccordion";
 
 export default function BlogPost() {
   const [, params] = useRoute("/blog/:slug");
@@ -241,6 +242,9 @@ export default function BlogPost() {
           <div className="prose prose-lg max-w-none">
             <div dangerouslySetInnerHTML={{ __html: post.content }} />
           </div>
+
+          {/* FAQ Section */}
+          <FAQAccordion faqs={faqs} />
 
           {/* CTA Button */}
           <div className="mt-12 bg-gradient-to-r from-primary to-primary/80 rounded-2xl p-8 text-center text-white">

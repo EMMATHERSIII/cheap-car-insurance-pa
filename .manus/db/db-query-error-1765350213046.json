@@ -1,0 +1,8 @@
+{
+  "query": "SELECT id, title, slug, status, publishedAt FROM posts WHERE title LIKE '%I-76%' OR title LIKE '%Snowstorm%' OR title LIKE '%Hit-and-Run%' OR title LIKE '%Deer Strike%' ORDER BY publishedAt DESC",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4VGETmSGRFvHYrB.root --database WFL2GeYUk6Uk7UT2Y8LCmo --execute SELECT id, title, slug, status, publishedAt FROM posts WHERE title LIKE '%I-76%' OR title LIKE '%Snowstorm%' OR title LIKE '%Hit-and-Run%' OR title LIKE '%Deer Strike%' ORDER BY publishedAt DESC",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1146 (42S02) at line 1: Table 'wfl2geyuk6uk7ut2y8lcmo.posts' doesn't exist"
+  ]
+}

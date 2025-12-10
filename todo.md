@@ -199,3 +199,16 @@
 ## Bug Fixes
 - [x] Fix nested anchor tag error in BlogPost component
 - [x] Find and fix all remaining nested anchor tags in all pages (Blog.tsx fixed)
+
+## Visible FAQ Section
+- [x] Create FAQ Accordion component
+- [x] Add FAQ section to BlogPost page
+- [ ] Test FAQ section display
+
+## Winter Insurance Case Study Articles
+- [x] Write Article 1: Ice crash on I-76 (8 AM)
+- [x] Write Article 2: Tree fell on car in snowstorm (12 PM)
+- [x] Write Article 3: Hit-and-run in fog (4 PM)
+- [x] Write Article 4: Deer collision on rural road (8 PM)
+- [x] Add all 4 articles to database with different timestamps
+- [x] Test articles display on blog
