@@ -8,6 +8,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { generateSitemap } from "../sitemap";
+import { uploadMiddleware, handleImageUpload } from "../upload";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -49,6 +50,9 @@ async function startServer() {
     }
   });
   
+  // Image upload endpoint
+  app.post("/api/upload-image", uploadMiddleware, handleImageUpload);
+
   // tRPC API
   app.use(
     "/api/trpc",

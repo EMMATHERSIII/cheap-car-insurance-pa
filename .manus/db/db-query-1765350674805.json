@@ -1,0 +1,34 @@
+{
+  "query": "SELECT id, title, slug, status FROM blog_posts WHERE title LIKE '%Deer Strike%' OR title LIKE '%I-76%' OR title LIKE '%Snowstorm%' OR title LIKE '%Hit-and-Run%'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4VGETmSGRFvHYrB.root --database WFL2GeYUk6Uk7UT2Y8LCmo --execute SELECT id, title, slug, status FROM blog_posts WHERE title LIKE '%Deer Strike%' OR title LIKE '%I-76%' OR title LIKE '%Snowstorm%' OR title LIKE '%Hit-and-Run%'",
+  "rows": [
+    {
+      "id": "60002",
+      "title": "I-76 Ice Crash: How $45,000 in Insurance Coverage Saved a Pittsburgh Driver",
+      "slug": "i-76-ice-crash-how-45-000-in-insurance-coverage-saved-a-pittsburgh-driver",
+      "status": "published"
+    },
+    {
+      "id": "60003",
+      "title": "Snowstorm Nightmare: When a Falling Tree Totaled a Parked Car—And Insurance Paid $12,000",
+      "slug": "snowstorm-nightmare-when-a-falling-tree-totaled-a-parked-car-and-insurance-paid-12-000",
+      "status": "published"
+    },
+    {
+      "id": "60004",
+      "title": "Hit-and-Run in Dense Fog: How Uninsured Motorist Coverage Paid $25,000 When the Driver Fled",
+      "slug": "hit-and-run-in-dense-fog-how-uninsured-motorist-coverage-paid-25-000-when-the-driver-fled",
+      "status": "published"
+    },
+    {
+      "id": "60005",
+      "title": "Deer Strike on Route 6: How Comprehensive Coverage Paid $8,000 for Pennsylvania's Most Common Winter Claim",
+      "slug": "deer-strike-on-route-6-how-comprehensive-coverage-paid-8-000-for-pennsylvania-s-most-common-winter-claim",
+      "status": "published"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tslug\tstatus\n60002\tI-76 Ice Crash: How $45,000 in Insurance Coverage Saved a Pittsburgh Driver\ti-76-ice-crash-how-45-000-in-insurance-coverage-saved-a-pittsburgh-driver\tpublished\n60003\tSnowstorm Nightmare: When a Falling Tree Totaled a Parked Car—And Insurance Paid $12,000\tsnowstorm-nightmare-when-a-falling-tree-totaled-a-parked-car-and-insurance-paid-12-000\tpublished\n60004\tHit-and-Run in Dense Fog: How Uninsured Motorist Coverage Paid $25,000 When the Driver Fled\thit-and-run-in-dense-fog-how-uninsured-motorist-coverage-paid-25-000-when-the-driver-fled\tpublished\n60005\tDeer Strike on Route 6: How Comprehensive Coverage Paid $8,000 for Pennsylvania's Most Common Winter Claim\tdeer-strike-on-route-6-how-comprehensive-coverage-paid-8-000-for-pennsylvania-s-most-common-winter-claim\tpublished\n",
+  "stderr": "",
+  "execution_time_ms": 1537
+}

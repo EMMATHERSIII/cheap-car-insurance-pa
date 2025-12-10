@@ -212,3 +212,10 @@
 - [x] Write Article 4: Deer collision on rural road (8 PM)
 - [x] Add all 4 articles to database with different timestamps
 - [x] Test articles display on blog
+
+## Blog Article Improvements
+- [x] Fix CTA button styling in blog articles (showing as text only)
+- [x] Add cover images to all blog articles
+- [x] Create admin panel for manual blog post creation
+- [x] Add image upload functionality for blog posts
+- [x] Test all blog improvements
