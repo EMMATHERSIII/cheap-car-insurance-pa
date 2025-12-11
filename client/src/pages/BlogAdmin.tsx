@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Shield, Plus, Edit, Trash2, Eye } from "lucide-react";
+import { Shield, Plus, Edit, Trash2, Eye, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,6 +27,7 @@ export default function BlogAdmin() {
     metaDescription: "",
     status: "draft" as "draft" | "published",
   });
+  const [uploading, setUploading] = useState(false);
 
   const { data: posts, refetch } = trpc.blog.admin.list.useQuery(undefined, {
     enabled: isAuthenticated && user?.role === "admin",
@@ -84,6 +85,46 @@ export default function BlogAdmin() {
       updateMutation.mutate({ id: editingPost, ...postData });
     } else {
       createMutation.mutate(postData);
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size must be less than 5MB");
+      return;
+    }
+
+    // Check file type
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload an image file");
+      return;
+    }
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      const response = await fetch("/api/upload-image", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Upload failed");
+      }
+
+      const data = await response.json();
+      setFormData((prev) => ({ ...prev, coverImage: data.url }));
+      toast.success("Image uploaded successfully!");
+    } catch (error) {
+      toast.error("Failed to upload image");
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -236,12 +277,31 @@ export default function BlogAdmin() {
 
                     <div>
                       <Label htmlFor="coverImage">Cover Image URL</Label>
-                      <Input
-                        id="coverImage"
-                        value={formData.coverImage}
-                        onChange={(e) => setFormData((prev) => ({ ...prev, coverImage: e.target.value }))}
-                        placeholder="https://example.com/image.jpg"
-                      />
+                      <div className="flex gap-2">
+                        <Input
+                          id="coverImage"
+                          value={formData.coverImage}
+                          onChange={(e) => setFormData((prev) => ({ ...prev, coverImage: e.target.value }))}
+                          placeholder="https://example.com/image.jpg"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={uploading}
+                          onClick={() => document.getElementById("imageUpload")?.click()}
+                        >
+                          <Upload className="w-4 h-4 mr-2" />
+                          {uploading ? "Uploading..." : "Upload"}
+                        </Button>
+                        <input
+                          id="imageUpload"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleImageUpload}
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">Max size: 5MB. Supported: JPG, PNG, WebP</p>
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-4">

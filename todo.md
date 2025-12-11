@@ -224,3 +224,8 @@
 - [x] Fix CTA button at end of article (not working/clickable)
 - [x] Fix category and published date display at beginning of article (showing as plain text)
 - [x] Test fixes across all blog articles
+
+## Blog Admin Panel Enhancement
+- [x] Add image upload button next to Image URL field
+- [x] Auto-fill Image URL after successful upload
+- [x] Test image upload from device
