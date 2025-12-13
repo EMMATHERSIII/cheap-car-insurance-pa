@@ -19,6 +19,7 @@ import Disclaimer from "./pages/Disclaimer";
 import CookiePolicy from "./pages/CookiePolicy";
 import HowItWorks from "./pages/HowItWorks";
 import RefundPolicy from "./pages/RefundPolicy";
+import ExitIntentPopup from "./components/ExitIntentPopup";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -59,6 +60,7 @@ function App() {
           <Analytics />
           <Toaster />
           <CookieConsent />
+          <ExitIntentPopup />
           <Router />
         </TooltipProvider>
       </ThemeProvider>

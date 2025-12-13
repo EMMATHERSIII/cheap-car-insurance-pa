@@ -236,3 +236,9 @@
 - [x] Create import script for bulk database insertion
 - [x] Run import and verify all articles are published
 - [x] Test random articles to ensure proper display
+
+## Exit-Intent Popup Feature
+- [x] Create ExitIntentPopup component with exit detection
+- [x] Add popup styling and animations
+- [x] Integrate into App.tsx
+- [x] Test popup functionality
