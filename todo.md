@@ -229,3 +229,10 @@
 - [x] Add image upload button next to Image URL field
 - [x] Auto-fill Image URL after successful upload
 - [x] Test image upload from device
+
+## Bulk Article Import (100 Articles)
+- [x] Read Excel file and extract article data
+- [x] Extract and upload images from ZIP
+- [x] Create import script for bulk database insertion
+- [x] Run import and verify all articles are published
+- [x] Test random articles to ensure proper display

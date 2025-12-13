@@ -1,0 +1,14 @@
+{
+  "query": "SELECT COUNT(*) as total, status FROM blog_posts GROUP BY status",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4VGETmSGRFvHYrB.root --database WFL2GeYUk6Uk7UT2Y8LCmo --execute SELECT COUNT(*) as total, status FROM blog_posts GROUP BY status",
+  "rows": [
+    {
+      "total": "154",
+      "status": "published"
+    }
+  ],
+  "messages": [],
+  "stdout": "total\tstatus\n154\tpublished\n",
+  "stderr": "",
+  "execution_time_ms": 1515
+}
