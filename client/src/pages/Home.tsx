@@ -143,9 +143,14 @@ export default function Home() {
                 <p className="text-xs text-muted-foreground">Your Trusted Insurance Partner</p>
               </div>
             </div>
-            <Button onClick={scrollToForm} size="lg" className="hidden md:flex">
-              Get Free Quote
-            </Button>
+            <div className="flex items-center gap-4">
+              <a href="/blog" className="hidden md:inline-flex items-center text-primary font-semibold hover:text-primary/80 transition">
+                Blog
+              </a>
+              <Button onClick={scrollToForm} size="lg" className="hidden md:flex">
+                Get Free Quote
+              </Button>
+            </div>
           </div>
         </div>
       </header>

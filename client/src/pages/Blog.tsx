@@ -1,10 +1,14 @@
 import { Shield, Calendar, User, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
+import BlogSearch from "@/components/BlogSearch";
+import { useState } from "react";
 
 export default function Blog() {
   const { data: posts, isLoading } = trpc.blog.list.useQuery();
+  const [, setLocation] = useLocation();
+  const [showSearch, setShowSearch] = useState(false);
 
   return (
     <div className="min-h-screen bg-background">
@@ -38,6 +42,33 @@ export default function Blog() {
         </div>
       </div>
 
+      {/* Search Section */}
+      <div className="container mx-auto px-4 py-8 border-b">
+        <div className="max-w-5xl mx-auto">
+          <button
+            onClick={() => setShowSearch(!showSearch)}
+            className="text-primary font-semibold hover:text-primary/80 transition mb-4"
+          >
+            {showSearch ? "Hide Search" : "Search Articles"}
+          </button>
+          {showSearch && posts && (
+            <BlogSearch
+              posts={posts.map((p) => ({
+                id: p.id,
+                title: p.title,
+                slug: p.slug,
+                excerpt: p.excerpt || "",
+                category: p.category || "",
+                tags: p.tags || "",
+                image_url: p.coverImage || null,
+                published_at: (typeof p.publishedAt === 'string' ? p.publishedAt : (p.publishedAt?.toISOString() || new Date().toISOString())),
+              }))}
+              onPostSelect={(post) => setLocation(`/blog/${post.slug}`)}
+            />
+          )}
+        </div>
+      </div>
+
       {/* Blog Posts */}
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-5xl mx-auto">
@@ -55,7 +86,11 @@ export default function Blog() {
               ))}
             </div>
           ) : posts && posts.length > 0 ? (
-            <div className="grid md:grid-cols-2 gap-8">
+            <>
+              <div className="mb-8 text-center">
+                <p className="text-muted-foreground">Showing {posts.length} articles</p>
+              </div>
+              <div className="grid md:grid-cols-2 gap-8">
               {posts.map((post) => (
                 <Link key={post.id} href={`/blog/${post.slug}`} className="block bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
                     {post.coverImage && (
@@ -94,6 +129,7 @@ export default function Blog() {
                 </Link>
               ))}
             </div>
+            </>
           ) : (
             <div className="text-center py-16">
               <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
