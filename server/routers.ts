@@ -220,6 +220,10 @@ export const appRouter = router({
   }),
 
   blog: router({
+    count: publicProcedure.query(async () => {
+      const posts = await getPublishedBlogPosts();
+      return posts.length;
+    }),
     list: publicProcedure.query(async () => {
       return await getPublishedBlogPosts();
     }),

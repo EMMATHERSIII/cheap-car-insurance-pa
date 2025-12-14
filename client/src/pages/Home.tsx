@@ -78,6 +78,7 @@ function BlogPreview() {
 
 export default function Home() {
   const { variant, recordConversion } = useAbTest();
+  const { data: articleCount } = trpc.blog.count.useQuery();
   
   // Store variant ID globally for MultiStepForm to access
   if (variant) {
@@ -162,7 +163,7 @@ export default function Home() {
             <div className="flex items-center space-x-3">
               <span className="text-2xl">📚</span>
               <div>
-                <p className="font-semibold">Explore 154+ Expert Insurance Articles</p>
+                <p className="font-semibold">Explore {articleCount || 154}+ Expert Insurance Articles</p>
                 <p className="text-sm text-blue-100">Learn money-saving tips and insurance guides from industry experts</p>
               </div>
             </div>

@@ -253,3 +253,8 @@
 - [x] Create promotional banner component for blog
 - [x] Add banner to home page hero section
 - [x] Test banner display and links
+
+## Dynamic Article Count
+- [x] Create tRPC procedure to count published articles
+- [x] Update promotional banner to use dynamic count
+- [x] Test that count updates automatically
