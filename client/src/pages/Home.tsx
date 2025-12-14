@@ -155,6 +155,24 @@ export default function Home() {
         </div>
       </header>
 
+      {/* Blog Promotional Banner */}
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center space-x-3">
+              <span className="text-2xl">📚</span>
+              <div>
+                <p className="font-semibold">Explore 154+ Expert Insurance Articles</p>
+                <p className="text-sm text-blue-100">Learn money-saving tips and insurance guides from industry experts</p>
+              </div>
+            </div>
+            <a href="/blog" className="bg-white text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition whitespace-nowrap">
+              Read Articles →
+            </a>
+          </div>
+        </div>
+      </div>
+
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-primary/5 via-background to-primary/10 py-16 md:py-24">
         <div className="container mx-auto px-4">

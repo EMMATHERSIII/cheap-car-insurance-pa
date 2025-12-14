@@ -248,3 +248,8 @@
 - [x] Add Blog button to header navigation
 - [x] Integrate search into Blog page
 - [x] Test search functionality
+
+## Blog Promotional Banner
+- [x] Create promotional banner component for blog
+- [x] Add banner to home page hero section
+- [x] Test banner display and links
