@@ -9,4 +9,6 @@ export const ENV = {
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
   cpaRedirectUrl: process.env.CPA_REDIRECT_URL ?? "",
   contactEmailRecipient: process.env.CONTACT_EMAIL_RECIPIENT ?? "",
+  telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? "",
+  telegramChatId: process.env.TELEGRAM_CHAT_ID ?? "",
 };

@@ -268,3 +268,11 @@
 - [ ] Test all features on Railway
 - [ ] Set up custom domain (if needed)
 - [ ] Monitor deployment logs
+
+## Telegram Notifications
+- [ ] Create Telegram bot and get token
+- [x] Add TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID env variables
+- [x] Create Telegram notification service
+- [x] Add Telegram notifications to lead submission
+- [x] Add Telegram notifications to contact form
+- [ ] Test Telegram notifications

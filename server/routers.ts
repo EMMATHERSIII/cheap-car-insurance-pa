@@ -22,6 +22,7 @@ import {
 import { validateLeadForCompliance, distributeLeadToNetworks } from "./webhook";
 import { sendContactFormNotification, sendLeadNotificationToOwner, sendLeadConfirmationEmail } from "./email";
 import { notifyOwner } from "./_core/notification";
+import { notifyLeadTelegram, notifyContactTelegram } from "./telegram";
 import { assignVariant } from "./abtest";
 import {
   getActiveAbTestVariants,
@@ -75,6 +76,14 @@ export const appRouter = router({
           message: input.message,
           submittedAt: new Date(),
         });
+
+        // Send Telegram notification
+        await notifyContactTelegram({
+          name: input.name,
+          email: input.email,
+          phone: input.phone,
+          message: input.message,
+        }).catch(err => console.error("Failed to send Telegram notification:", err));
 
         return { success: true };
       }),
@@ -187,6 +196,19 @@ export const appRouter = router({
           sendLeadNotificationToOwner(lead).catch(err => 
             console.error("Failed to send email to owner:", err)
           );
+
+          // Send Telegram notification
+          notifyLeadTelegram({
+            age: input.age,
+            state: input.state,
+            zipCode: input.zipCode,
+            vehicleType: input.vehicleType,
+            vehicleYear: input.vehicleYear.toString(),
+            accidents: input.hasRecentAccidents === "yes",
+            insuranceCompany: input.currentInsurer,
+            email: input.email,
+            phone: input.phone,
+          }).catch(err => console.error("Failed to send Telegram notification:", err));
 
           // Send confirmation email to customer
           sendLeadConfirmationEmail(lead).catch(err => 
