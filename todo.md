@@ -276,3 +276,17 @@
 - [x] Add Telegram notifications to lead submission
 - [x] Add Telegram notifications to contact form
 - [ ] Test Telegram notifications
+
+## Multi-Affiliate Lead Distribution
+- [x] Verify affiliate distribution system in webhook.ts
+- [ ] Test lead distribution to multiple affiliates
+- [ ] Document affiliate API endpoints and credentials
+
+## Documentation & PDF Guide
+- [ ] Create comprehensive PDF guide
+- [ ] Include all credentials and login information
+- [ ] Include all service links and URLs
+- [ ] Include database access instructions
+- [ ] Include Telegram bot setup guide
+- [ ] Include affiliate management guide
+- [ ] Include troubleshooting section
