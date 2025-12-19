@@ -258,3 +258,13 @@
 - [x] Create tRPC procedure to count published articles
 - [x] Update promotional banner to use dynamic count
 - [x] Test that count updates automatically
+
+## Railway Deployment
+- [x] Create Dockerfile for deployment
+- [x] Create .railwayignore file
+- [ ] Deploy to Railway
+- [ ] Configure environment variables on Railway
+- [ ] Deploy database on Railway
+- [ ] Test all features on Railway
+- [ ] Set up custom domain (if needed)
+- [ ] Monitor deployment logs
