@@ -29,8 +29,7 @@ COPY package.json pnpm-lock.yaml ./
 COPY patches ./patches
 
 # Install production dependencies only
-# We need vite even in production because it's imported in server/_core/vite.ts
-RUN pnpm install --prod --frozen-lockfile && pnpm add vite
+RUN pnpm install --prod --frozen-lockfile
 
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist
