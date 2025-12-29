@@ -39,4 +39,5 @@ COPY --from=builder /app/drizzle ./drizzle
 EXPOSE 3000
 
 # Start the application
-CMD ["node", "dist/server/_core/index.js"]
+# Based on package.json build script: outdir=dist, so index.js is in dist/index.js
+CMD ["node", "dist/index.js"]
