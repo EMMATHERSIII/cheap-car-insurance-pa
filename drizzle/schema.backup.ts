@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, decimal } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -16,8 +16,7 @@ export const users = mysqlTable("users", {
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["user", "admin", "manager"]).default("user").notNull(),
-  isActive: mysqlEnum("isActive", ["yes", "no"]).default("yes").notNull(),
+  role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -40,11 +39,9 @@ export const blogPosts = mysqlTable("blog_posts", {
   tags: text("tags"), // JSON array of tags
   metaTitle: varchar("metaTitle", { length: 200 }),
   metaDescription: text("metaDescription"),
-  status: mysqlEnum("status", ["draft", "published", "archived"]).default("draft").notNull(),
+  status: mysqlEnum("status", ["draft", "published"]).default("draft").notNull(),
   authorId: int("authorId").references(() => users.id),
   publishedAt: timestamp("publishedAt"),
-  viewCount: int("viewCount").default(0).notNull(),
-  deletedAt: timestamp("deletedAt"), // Soft delete
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -62,15 +59,10 @@ export const contactMessages = mysqlTable("contact_messages", {
   phone: varchar("phone", { length: 20 }),
   subject: varchar("subject", { length: 300 }),
   message: text("message").notNull(),
-  status: mysqlEnum("status", ["new", "read", "replied", "archived"]).default("new").notNull(),
-  priority: mysqlEnum("priority", ["low", "medium", "high", "urgent"]).default("medium").notNull(),
-  assignedTo: int("assignedTo").references(() => users.id),
+  status: mysqlEnum("status", ["new", "read", "replied"]).default("new").notNull(),
   ipAddress: varchar("ipAddress", { length: 45 }),
   userAgent: text("userAgent"),
-  notes: text("notes"), // Admin notes
-  deletedAt: timestamp("deletedAt"), // Soft delete
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
 export type ContactMessage = typeof contactMessages.$inferSelect;
@@ -104,20 +96,15 @@ export const leads = mysqlTable("leads", {
   utmMedium: varchar("utmMedium", { length: 200 }),
   utmCampaign: varchar("utmCampaign", { length: 200 }),
   // Status tracking
-  status: mysqlEnum("status", ["new", "sent", "failed", "contacted", "converted", "archived"]).default("new").notNull(),
-  priority: mysqlEnum("priority", ["low", "medium", "high", "urgent"]).default("medium").notNull(),
-  assignedTo: int("assignedTo").references(() => users.id),
+  status: mysqlEnum("status", ["new", "sent", "failed"]).default("new").notNull(),
   sentToNetwork: varchar("sentToNetwork", { length: 200 }),
   sentAt: timestamp("sentAt"),
-  estimatedValue: decimal("estimatedValue", { precision: 10, scale: 2 }), // Estimated commission value
-  deletedAt: timestamp("deletedAt"), // Soft delete
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
 export type Lead = typeof leads.$inferSelect;
 export type InsertLead = typeof leads.$inferInsert;
-
 /**
  * A/B test variants for landing page optimization
  */
@@ -169,106 +156,11 @@ export const expressLeads = mysqlTable("express_leads", {
   utmMedium: varchar("utmMedium", { length: 200 }),
   utmCampaign: varchar("utmCampaign", { length: 200 }),
   // Status tracking
-  status: mysqlEnum("status", ["new", "contacted", "converted", "archived"]).default("new").notNull(),
-  priority: mysqlEnum("priority", ["low", "medium", "high", "urgent"]).default("medium").notNull(),
-  assignedTo: int("assignedTo").references(() => users.id),
+  status: mysqlEnum("status", ["new", "contacted", "converted"]).default("new").notNull(),
   notes: text("notes"), // Admin notes
-  deletedAt: timestamp("deletedAt"), // Soft delete
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
 export type ExpressLead = typeof expressLeads.$inferSelect;
 export type InsertExpressLead = typeof expressLeads.$inferInsert;
-
-/**
- * Lead notes for tracking communication and follow-ups
- */
-export const leadNotes = mysqlTable("lead_notes", {
-  id: int("id").autoincrement().primaryKey(),
-  leadId: int("leadId").references(() => leads.id),
-  expressLeadId: int("expressLeadId").references(() => expressLeads.id),
-  userId: int("userId").notNull().references(() => users.id),
-  noteType: mysqlEnum("noteType", ["call", "email", "sms", "meeting", "general"]).default("general").notNull(),
-  content: text("content").notNull(),
-  isImportant: mysqlEnum("isImportant", ["yes", "no"]).default("no").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type LeadNote = typeof leadNotes.$inferSelect;
-export type InsertLeadNote = typeof leadNotes.$inferInsert;
-
-/**
- * Admin activity logs for tracking all admin actions
- */
-export const adminActivityLogs = mysqlTable("admin_activity_logs", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().references(() => users.id),
-  action: varchar("action", { length: 100 }).notNull(), // e.g., "create", "update", "delete", "export", "import"
-  entityType: varchar("entityType", { length: 50 }).notNull(), // e.g., "lead", "blog_post", "contact_message"
-  entityId: int("entityId"), // ID of the affected entity
-  details: text("details"), // JSON with additional details
-  ipAddress: varchar("ipAddress", { length: 45 }),
-  userAgent: text("userAgent"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export type AdminActivityLog = typeof adminActivityLogs.$inferSelect;
-export type InsertAdminActivityLog = typeof adminActivityLogs.$inferInsert;
-
-/**
- * Email templates for automated communications
- */
-export const emailTemplates = mysqlTable("email_templates", {
-  id: int("id").autoincrement().primaryKey(),
-  name: varchar("name", { length: 200 }).notNull().unique(),
-  subject: varchar("subject", { length: 300 }).notNull(),
-  htmlContent: text("htmlContent").notNull(),
-  textContent: text("textContent"),
-  variables: text("variables"), // JSON array of available variables
-  isActive: mysqlEnum("isActive", ["yes", "no"]).default("yes").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type EmailTemplate = typeof emailTemplates.$inferSelect;
-export type InsertEmailTemplate = typeof emailTemplates.$inferInsert;
-
-/**
- * System settings for configurable parameters
- */
-export const settings = mysqlTable("settings", {
-  id: int("id").autoincrement().primaryKey(),
-  key: varchar("key", { length: 100 }).notNull().unique(),
-  value: text("value").notNull(),
-  description: text("description"),
-  category: varchar("category", { length: 50 }).notNull(), // e.g., "email", "notifications", "general"
-  dataType: mysqlEnum("dataType", ["string", "number", "boolean", "json"]).default("string").notNull(),
-  isPublic: mysqlEnum("isPublic", ["yes", "no"]).default("no").notNull(), // Whether it can be accessed by non-admins
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type Setting = typeof settings.$inferSelect;
-export type InsertSetting = typeof settings.$inferInsert;
-
-/**
- * Bulk import jobs tracking
- */
-export const importJobs = mysqlTable("import_jobs", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().references(() => users.id),
-  entityType: varchar("entityType", { length: 50 }).notNull(), // e.g., "leads", "blog_posts"
-  fileName: varchar("fileName", { length: 300 }).notNull(),
-  status: mysqlEnum("status", ["pending", "processing", "completed", "failed"]).default("pending").notNull(),
-  totalRows: int("totalRows").default(0).notNull(),
-  processedRows: int("processedRows").default(0).notNull(),
-  successRows: int("successRows").default(0).notNull(),
-  failedRows: int("failedRows").default(0).notNull(),
-  errorLog: text("errorLog"), // JSON array of errors
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  completedAt: timestamp("completedAt"),
-});
-
-export type ImportJob = typeof importJobs.$inferSelect;
-export type InsertImportJob = typeof importJobs.$inferInsert;
