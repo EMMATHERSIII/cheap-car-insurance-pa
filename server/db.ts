@@ -1,5 +1,6 @@
-import { eq, desc } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/mysql2";
+import { eq, desc, sql } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import { InsertUser, users, leads, InsertLead } from "../drizzle/schema";
 import { contactMessages, InsertContactMessage, blogPosts, InsertBlogPost, abTestVariants, InsertAbTestVariant, abTestEvents, InsertAbTestEvent, expressLeads, InsertExpressLead } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -10,7 +11,8 @@ let _db: ReturnType<typeof drizzle> | null = null;
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      const queryClient = postgres(process.env.DATABASE_URL);
+      _db = drizzle(queryClient);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -69,7 +71,8 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       updateSet.lastSignedIn = new Date();
     }
 
-    await db.insert(users).values(values).onDuplicateKeyUpdate({
+    await db.insert(users).values(values).onConflictDoUpdate({
+      target: users.openId,
       set: updateSet,
     });
   } catch (error) {
@@ -99,8 +102,8 @@ export async function createLead(lead: InsertLead): Promise<number> {
     throw new Error("Database not available");
   }
 
-  const result = await db.insert(leads).values(lead);
-  return Number(result[0].insertId);
+  const result = await db.insert(leads).values(lead).returning({ id: leads.id });
+  return result[0].id;
 }
 
 /**
@@ -148,8 +151,8 @@ export async function insertContactMessage(message: InsertContactMessage): Promi
     throw new Error("Database not available");
   }
 
-  const result = await db.insert(contactMessages).values(message);
-  return Number(result[0].insertId);
+  const result = await db.insert(contactMessages).values(message).returning({ id: contactMessages.id });
+  return result[0].id;
 }
 
 /**
@@ -212,8 +215,8 @@ export async function createBlogPost(post: InsertBlogPost): Promise<number> {
     throw new Error("Database not available");
   }
 
-  const result = await db.insert(blogPosts).values(post);
-  return Number(result[0].insertId);
+  const result = await db.insert(blogPosts).values(post).returning({ id: blogPosts.id });
+  return result[0].id;
 }
 
 /**
@@ -278,8 +281,8 @@ export async function createAbTestVariant(data: InsertAbTestVariant) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const result = await db.insert(abTestVariants).values(data);
-  return Number(result[0].insertId);
+  const result = await db.insert(abTestVariants).values(data).returning({ id: abTestVariants.id });
+  return result[0].id;
 }
 
 export async function updateAbTestVariant(id: number, data: Partial<InsertAbTestVariant>) {
@@ -325,16 +328,14 @@ export async function getAbTestAnalytics() {
         .select()
         .from(abTestEvents)
         .where(
-          eq(abTestEvents.variantId, variant.variantId) &&
-          eq(abTestEvents.eventType, "view")
+          sql`${abTestEvents.variantId} = ${variant.variantId} AND ${abTestEvents.eventType} = 'view'`
         );
       
       const conversions = await db
         .select()
         .from(abTestEvents)
         .where(
-          eq(abTestEvents.variantId, variant.variantId) &&
-          eq(abTestEvents.eventType, "conversion")
+          sql`${abTestEvents.variantId} = ${variant.variantId} AND ${abTestEvents.eventType} = 'conversion'`
         );
       
       const viewCount = views.length;
@@ -359,8 +360,8 @@ export async function createExpressLead(data: InsertExpressLead): Promise<number
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const result = await db.insert(expressLeads).values(data);
-  return Number(result[0].insertId);
+  const result = await db.insert(expressLeads).values(data).returning({ id: expressLeads.id });
+  return result[0].id;
 }
 
 export async function getExpressLeadById(id: number) {
