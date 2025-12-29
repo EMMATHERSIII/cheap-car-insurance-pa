@@ -13,6 +13,9 @@ import Contact from "./pages/Contact";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import BlogAdmin from "./pages/BlogAdmin";
+import AdminDashboard from "./pages/admin/Dashboard";
+import LeadsManagement from "./pages/admin/LeadsManagement";
+import ExpressLeadsManagement from "./pages/admin/ExpressLeadsManagement";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Disclaimer from "./pages/Disclaimer";
@@ -30,6 +33,9 @@ function Router() {
       <Route path={"/contact"} component={Contact} />
       <Route path={"/blog"} component={Blog} />
       <Route path={"/blog/:slug"} component={BlogPost} />
+      <Route path={"/admin/dashboard"} component={AdminDashboard} />
+      <Route path={"/admin/leads"} component={LeadsManagement} />
+      <Route path={"/admin/express-leads"} component={ExpressLeadsManagement} />
       <Route path={"/admin/blog"} component={BlogAdmin} />
       <Route path={"/admin/abtest"} component={AbTestAdmin} />
       <Route path={"/privacy"} component={Privacy} />
