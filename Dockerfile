@@ -1,22 +1,3 @@
-# Build stage
-FROM node:22-alpine AS builder
-
-WORKDIR /app
-
-# Copy package files and patches
-COPY package.json pnpm-lock.yaml ./
-COPY patches ./patches
-
-# Install dependencies
-RUN npm install -g pnpm && pnpm install --frozen-lockfile
-
-# Copy source code
-COPY . .
-
-# Build the application
-RUN pnpm build
-
-# Runtime stage
 FROM node:22-alpine
 
 WORKDIR /app
@@ -28,12 +9,14 @@ RUN npm install -g pnpm
 COPY package.json pnpm-lock.yaml ./
 COPY patches ./patches
 
-# Install production dependencies only
-RUN pnpm install --prod --frozen-lockfile
+# Install all dependencies
+RUN pnpm install --frozen-lockfile
 
-# Copy built application from builder
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/drizzle ./drizzle
+# Copy source code
+COPY . .
+
+# Build the application
+RUN pnpm build
 
 # Expose port
 EXPOSE 3000
