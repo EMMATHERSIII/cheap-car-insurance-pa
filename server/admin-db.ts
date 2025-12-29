@@ -1,4 +1,4 @@
-import { eq, desc, asc, and, or, isNull, isNotNull, sql, count, like } from "drizzle-orm";
+import { eq, desc, asc, and, or, isNull, isNotNull, sql, count, like, gte, lte } from "drizzle-orm";
 import { getDb } from "./db";
 import {
   leads,
@@ -10,11 +10,7 @@ import {
   emailTemplates,
   settings,
   importJobs,
-  InsertLeadNote,
-  InsertAdminActivityLog,
-  InsertEmailTemplate,
-  InsertSetting,
-  InsertImportJob,
+  webhooks,
 } from "../drizzle/schema";
 
 /**
@@ -42,7 +38,7 @@ export async function getDashboardStats() {
       .where(
         and(
           isNull(leads.deletedAt),
-          sql`DATE(${leads.createdAt}) = CURDATE()`
+          sql`DATE("createdAt") = CURRENT_DATE`
         )
       ),
     db
@@ -51,7 +47,7 @@ export async function getDashboardStats() {
       .where(
         and(
           isNull(expressLeads.deletedAt),
-          sql`DATE(${expressLeads.createdAt}) = CURDATE()`
+          sql`DATE("createdAt") = CURRENT_DATE`
         )
       ),
   ]);
@@ -78,6 +74,10 @@ export async function getAllLeads(options: {
   sortBy?: string;
   sortOrder?: "asc" | "desc";
   includeDeleted?: boolean;
+  startDate?: Date;
+  endDate?: Date;
+  month?: number;
+  year?: number;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -91,6 +91,10 @@ export async function getAllLeads(options: {
     sortBy = "createdAt",
     sortOrder = "desc",
     includeDeleted = false,
+    startDate,
+    endDate,
+    month,
+    year,
   } = options;
 
   const offset = (page - 1) * limit;
@@ -118,6 +122,22 @@ export async function getAllLeads(options: {
         like(leads.zipCode, `%${search}%`)
       )!
     );
+  }
+
+  if (startDate) {
+    conditions.push(gte(leads.createdAt, startDate));
+  }
+  if (endDate) {
+    conditions.push(lte(leads.createdAt, endDate));
+  }
+  if (month && year) {
+    const startOfMonth = new Date(year, month - 1, 1);
+    const endOfMonth = new Date(year, month, 0, 23, 59, 59);
+    conditions.push(and(gte(leads.createdAt, startOfMonth), lte(leads.createdAt, endOfMonth)));
+  } else if (year) {
+    const startOfYear = new Date(year, 0, 1);
+    const endOfYear = new Date(year, 11, 31, 23, 59, 59);
+    conditions.push(and(gte(leads.createdAt, startOfYear), lte(leads.createdAt, endOfYear)));
   }
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
@@ -153,6 +173,10 @@ export async function getAllExpressLeads(options: {
   sortBy?: string;
   sortOrder?: "asc" | "desc";
   includeDeleted?: boolean;
+  startDate?: Date;
+  endDate?: Date;
+  month?: number;
+  year?: number;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -166,6 +190,10 @@ export async function getAllExpressLeads(options: {
     sortBy = "createdAt",
     sortOrder = "desc",
     includeDeleted = false,
+    startDate,
+    endDate,
+    month,
+    year,
   } = options;
 
   const offset = (page - 1) * limit;
@@ -190,6 +218,22 @@ export async function getAllExpressLeads(options: {
         like(expressLeads.phone, `%${search}%`)
       )!
     );
+  }
+
+  if (startDate) {
+    conditions.push(gte(expressLeads.createdAt, startDate));
+  }
+  if (endDate) {
+    conditions.push(lte(expressLeads.createdAt, endDate));
+  }
+  if (month && year) {
+    const startOfMonth = new Date(year, month - 1, 1);
+    const endOfMonth = new Date(year, month, 0, 23, 59, 59);
+    conditions.push(and(gte(expressLeads.createdAt, startOfMonth), lte(expressLeads.createdAt, endOfMonth)));
+  } else if (year) {
+    const startOfYear = new Date(year, 0, 1);
+    const endOfYear = new Date(year, 11, 31, 23, 59, 59);
+    conditions.push(and(gte(expressLeads.createdAt, startOfYear), lte(expressLeads.createdAt, endOfYear)));
   }
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
@@ -361,12 +405,11 @@ export async function bulkAssignExpressLeads(ids: number[], userId: number) {
 /**
  * Lead Notes
  */
-export async function createLeadNote(note: InsertLeadNote) {
+export async function createLeadNote(note: any) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const result = await db.insert(leadNotes).values(note);
-  return result[0].insertId;
+  return await db.insert(leadNotes).values(note);
 }
 
 export async function getLeadNotes(leadId: number) {
@@ -386,12 +429,11 @@ export async function getExpressLeadNotes(expressLeadId: number) {
 /**
  * Admin Activity Logs
  */
-export async function logAdminActivity(log: InsertAdminActivityLog) {
+export async function logAdminActivity(log: any) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const result = await db.insert(adminActivityLogs).values(log);
-  return result[0].insertId;
+  return await db.insert(adminActivityLogs).values(log);
 }
 
 export async function getAdminActivityLogs(options: { page?: number; limit?: number; userId?: number }) {
@@ -437,15 +479,14 @@ export async function getEmailTemplateByName(name: string) {
   return result[0];
 }
 
-export async function createEmailTemplate(template: InsertEmailTemplate) {
+export async function createEmailTemplate(template: any) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const result = await db.insert(emailTemplates).values(template);
-  return result[0].insertId;
+  return await db.insert(emailTemplates).values(template);
 }
 
-export async function updateEmailTemplate(id: number, template: Partial<InsertEmailTemplate>) {
+export async function updateEmailTemplate(id: number, template: any) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
@@ -471,14 +512,16 @@ export async function getSettingByKey(key: string) {
   return result[0];
 }
 
-export async function upsertSetting(setting: InsertSetting) {
+export async function upsertSetting(setting: any) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
+  // PostgreSQL doesn't have onDuplicateKeyUpdate, use ON CONFLICT
   await db
     .insert(settings)
     .values(setting)
-    .onDuplicateKeyUpdate({
+    .onConflictDoUpdate({
+      target: settings.key,
       set: { value: setting.value, updatedAt: new Date() },
     });
 
@@ -486,53 +529,57 @@ export async function upsertSetting(setting: InsertSetting) {
 }
 
 /**
- * Import Jobs
+ * Webhooks
  */
-export async function createImportJob(job: InsertImportJob) {
+export async function listWebhooks() {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-
-  const result = await db.insert(importJobs).values(job);
-  return result[0].insertId;
+  return await db.select().from(webhooks).orderBy(desc(webhooks.createdAt));
 }
 
-export async function updateImportJob(id: number, updates: Partial<InsertImportJob>) {
+export async function createWebhook(data: any) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-
-  await db.update(importJobs).set(updates).where(eq(importJobs.id, id));
-  return { success: true };
+  return await db.insert(webhooks).values(data);
 }
 
-export async function getImportJobById(id: number) {
+export async function updateWebhook(id: number, data: any) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-
-  const result = await db.select().from(importJobs).where(eq(importJobs.id, id)).limit(1);
-  return result[0];
+  return await db.update(webhooks).set(data).where(eq(webhooks.id, id));
 }
 
-export async function getAllImportJobs(options: { page?: number; limit?: number; userId?: number }) {
+export async function deleteWebhook(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
+  return await db.delete(webhooks).where(eq(webhooks.id, id));
+}
 
-  const { page = 1, limit = 50, userId } = options;
-  const offset = (page - 1) * limit;
+export async function getActiveWebhooks(entityType: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.select().from(webhooks).where(
+    and(
+      eq(webhooks.isActive, "yes"),
+      or(eq(webhooks.entityType, "all"), eq(webhooks.entityType, entityType))
+    )
+  );
+}
 
-  const whereClause = userId ? eq(importJobs.userId, userId) : undefined;
-
-  const [data, totalCount] = await Promise.all([
-    db.select().from(importJobs).where(whereClause).orderBy(desc(importJobs.createdAt)).limit(limit).offset(offset),
-    db.select({ count: count() }).from(importJobs).where(whereClause),
-  ]);
-
-  return {
-    data,
-    pagination: {
-      page,
-      limit,
-      total: totalCount[0]?.count || 0,
-      totalPages: Math.ceil((totalCount[0]?.count || 0) / limit),
-    },
-  };
+export async function triggerWebhooks(entityType: string, data: any) {
+  const activeWebhooks = await getActiveWebhooks(entityType);
+  for (const webhook of activeWebhooks) {
+    try {
+      await fetch(webhook.url, {
+        method: webhook.method || "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(webhook.headers ? JSON.parse(webhook.headers) : {}),
+        },
+        body: JSON.stringify(data),
+      });
+    } catch (error) {
+      console.error(`Webhook ${webhook.name} failed:`, error);
+    }
+  }
 }

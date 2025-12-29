@@ -16,6 +16,7 @@ import BlogAdmin from "./pages/BlogAdmin";
 import AdminDashboard from "./pages/admin/Dashboard";
 import LeadsManagement from "./pages/admin/LeadsManagement";
 import ExpressLeadsManagement from "./pages/admin/ExpressLeadsManagement";
+import WebhooksManagement from "./pages/admin/WebhooksManagement";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Disclaimer from "./pages/Disclaimer";
@@ -36,6 +37,7 @@ function Router() {
       <Route path={"/admin/dashboard"} component={AdminDashboard} />
       <Route path={"/admin/leads"} component={LeadsManagement} />
       <Route path={"/admin/express-leads"} component={ExpressLeadsManagement} />
+      <Route path={"/admin/webhooks"} component={WebhooksManagement} />
       <Route path={"/admin/blog"} component={BlogAdmin} />
       <Route path={"/admin/abtest"} component={AbTestAdmin} />
       <Route path={"/privacy"} component={Privacy} />

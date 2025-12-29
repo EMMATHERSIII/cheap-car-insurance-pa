@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Download, Search, Trash2, RefreshCw } from "lucide-react";
+import { Download, Search, Trash2, RefreshCw, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
 
@@ -17,7 +17,8 @@ export default function ExpressLeadsManagement() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<string>("");
-  const [priority, setPriority] = useState<string>("");
+  const [month, setMonth] = useState<string>("all");
+  const [year, setYear] = useState<string>(new Date().getFullYear().toString());
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
   const { data, isLoading, refetch } = trpc.admin.expressLeads.list.useQuery({
@@ -25,7 +26,8 @@ export default function ExpressLeadsManagement() {
     limit: 50,
     search: search || undefined,
     status: status || undefined,
-    priority: priority || undefined,
+    month: month === "all" ? undefined : parseInt(month),
+    year: parseInt(year),
     sortBy: "createdAt",
     sortOrder: "desc",
   });
@@ -36,19 +38,13 @@ export default function ExpressLeadsManagement() {
       setSelectedIds([]);
       queryClient.invalidateQueries({ queryKey: ["admin", "expressLeads", "list"] });
     },
-    onError: (error) => {
-      toast.error(`Failed to update status: ${error.message}`);
-    },
   });
 
   const bulkDeleteMutation = trpc.admin.expressLeads.bulkDelete.useMutation({
     onSuccess: () => {
-      toast.success("Express leads deleted successfully");
+      toast.success("Leads deleted successfully");
       setSelectedIds([]);
       queryClient.invalidateQueries({ queryKey: ["admin", "expressLeads", "list"] });
-    },
-    onError: (error) => {
-      toast.error(`Failed to delete express leads: ${error.message}`);
     },
   });
 
@@ -56,15 +52,16 @@ export default function ExpressLeadsManagement() {
     try {
       const exportData = await trpc.admin.expressLeads.export.query({
         status: status || undefined,
-        priority: priority || undefined,
         search: search || undefined,
+        month: month === "all" ? undefined : parseInt(month),
+        year: parseInt(year),
       });
 
       const worksheet = XLSX.utils.json_to_sheet(exportData);
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Express Leads");
-      XLSX.writeFile(workbook, `express_leads_export_${new Date().toISOString().split("T")[0]}.xlsx`);
-      toast.success("Express leads exported successfully");
+      XLSX.utils.book_append_sheet(workbook, worksheet, "ExpressLeads");
+      XLSX.writeFile(workbook, `express_leads_export_${year}_${month}.xlsx`);
+      toast.success("Data exported successfully");
     } catch (error: any) {
       toast.error(`Export failed: ${error.message}`);
     }
@@ -96,16 +93,6 @@ export default function ExpressLeadsManagement() {
     return <Badge variant={variants[status] || "default"}>{status}</Badge>;
   };
 
-  const getPriorityBadge = (priority: string) => {
-    const colors: Record<string, string> = {
-      low: "bg-gray-100 text-gray-800",
-      medium: "bg-blue-100 text-blue-800",
-      high: "bg-orange-100 text-orange-800",
-      urgent: "bg-red-100 text-red-800",
-    };
-    return <Badge className={colors[priority] || ""}>{priority}</Badge>;
-  };
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -115,93 +102,101 @@ export default function ExpressLeadsManagement() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-6 space-y-6" dir="rtl">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Express Leads Management</h1>
-          <p className="text-muted-foreground mt-2">Manage quick quote requests (Email + Phone only)</p>
+          <h1 className="text-3xl font-bold tracking-tight">إدارة الـ Express Leads</h1>
+          <p className="text-muted-foreground mt-2">إدارة النماذج السريعة (إيميل وهاتف فقط)</p>
         </div>
-        <Button onClick={() => refetch()}>
-          <RefreshCw className="mr-2 h-4 w-4" />
-          Refresh
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={handleExport} variant="outline" className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100">
+            <Download className="ml-2 h-4 w-4" />
+            تصدير Excel
+          </Button>
+          <Button onClick={() => refetch()}>
+            <RefreshCw className="ml-2 h-4 w-4" />
+            تحديث
+          </Button>
+        </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Filters & Actions</CardTitle>
-          <CardDescription>Search and filter express leads, perform bulk operations</CardDescription>
+          <CardTitle>الفلاتر والبحث</CardTitle>
+          <CardDescription>فرز النماذج السريعة حسب التاريخ أو الحالة</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-5">
             <div className="relative">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute right-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search by email or phone..."
+                placeholder="بحث..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-8"
+                className="pr-8"
               />
             </div>
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger>
-                <SelectValue placeholder="All Statuses" />
+                <SelectValue placeholder="كل الحالات" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Statuses</SelectItem>
-                <SelectItem value="new">New</SelectItem>
-                <SelectItem value="contacted">Contacted</SelectItem>
-                <SelectItem value="converted">Converted</SelectItem>
-                <SelectItem value="archived">Archived</SelectItem>
+                <SelectItem value="all">كل الحالات</SelectItem>
+                <SelectItem value="new">جديد</SelectItem>
+                <SelectItem value="contacted">تم التواصل</SelectItem>
+                <SelectItem value="converted">تم التحويل</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={priority} onValueChange={setPriority}>
+            <Select value={month} onValueChange={setMonth}>
               <SelectTrigger>
-                <SelectValue placeholder="All Priorities" />
+                <Calendar className="ml-2 h-4 w-4 text-muted-foreground" />
+                <SelectValue placeholder="كل الأشهر" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Priorities</SelectItem>
-                <SelectItem value="low">Low</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="high">High</SelectItem>
-                <SelectItem value="urgent">Urgent</SelectItem>
+                <SelectItem value="all">كل الأشهر</SelectItem>
+                {Array.from({ length: 12 }, (_, i) => (
+                  <SelectItem key={i + 1} value={(i + 1).toString()}>
+                    {new Date(0, i).toLocaleString("ar-EG", { month: "long" })}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
-            <Button onClick={handleExport} variant="outline">
-              <Download className="mr-2 h-4 w-4" />
-              Export Excel
-            </Button>
+            <Select value={year} onValueChange={setYear}>
+              <SelectTrigger>
+                <SelectValue placeholder="السنة" />
+              </SelectTrigger>
+              <SelectContent>
+                {["2024", "2025", "2026"].map((y) => (
+                  <SelectItem key={y} value={y}>{y}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button variant="ghost" onClick={() => {
+              setSearch("");
+              setStatus("");
+              setMonth("all");
+              setYear(new Date().getFullYear().toString());
+            }}>إعادة تعيين</Button>
           </div>
 
           {selectedIds.length > 0 && (
-            <div className="flex items-center gap-2 p-4 bg-accent rounded-lg">
-              <span className="text-sm font-medium">{selectedIds.length} selected</span>
-              <Select
-                onValueChange={(value) => {
-                  bulkUpdateStatusMutation.mutate({ ids: selectedIds, status: value });
-                }}
-              >
+            <div className="flex items-center gap-2 p-4 bg-blue-50 border border-blue-100 rounded-lg">
+              <span className="text-sm font-medium">{selectedIds.length} مختار</span>
+              <Select onValueChange={(v) => bulkUpdateStatusMutation.mutate({ ids: selectedIds, status: v })}>
                 <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Update Status" />
+                  <SelectValue placeholder="تحديث الحالة" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="new">New</SelectItem>
-                  <SelectItem value="contacted">Contacted</SelectItem>
-                  <SelectItem value="converted">Converted</SelectItem>
-                  <SelectItem value="archived">Archived</SelectItem>
+                  <SelectItem value="contacted">تم التواصل</SelectItem>
+                  <SelectItem value="converted">تم التحويل</SelectItem>
+                  <SelectItem value="archived">أرشفة</SelectItem>
                 </SelectContent>
               </Select>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => {
-                  if (confirm("Are you sure you want to delete selected express leads?")) {
-                    bulkDeleteMutation.mutate({ ids: selectedIds });
-                  }
-                }}
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete Selected
+              <Button variant="destructive" size="sm" onClick={() => {
+                if (confirm("هل أنت متأكد من حذف المختار؟")) bulkDeleteMutation.mutate({ ids: selectedIds });
+              }}>
+                <Trash2 className="ml-2 h-4 w-4" />
+                حذف المختار
               </Button>
             </div>
           )}
@@ -210,72 +205,51 @@ export default function ExpressLeadsManagement() {
 
       <Card>
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-12">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={selectedIds.length === data?.data?.length && data?.data?.length > 0}
+                    onCheckedChange={handleSelectAll}
+                  />
+                </TableHead>
+                <TableHead>الإيميل</TableHead>
+                <TableHead>الهاتف</TableHead>
+                <TableHead>الحالة</TableHead>
+                <TableHead>التاريخ</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data?.data?.map((lead) => (
+                <TableRow key={lead.id}>
+                  <TableCell>
                     <Checkbox
-                      checked={selectedIds.length === data?.data?.length && data?.data?.length > 0}
-                      onCheckedChange={handleSelectAll}
+                      checked={selectedIds.includes(lead.id)}
+                      onCheckedChange={(checked) => handleSelectOne(lead.id, checked as boolean)}
                     />
-                  </TableHead>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Priority</TableHead>
-                  <TableHead>Notes</TableHead>
-                  <TableHead>UTM Source</TableHead>
-                  <TableHead>Created</TableHead>
+                  </TableCell>
+                  <TableCell className="font-medium">{lead.email}</TableCell>
+                  <TableCell>{lead.phone}</TableCell>
+                  <TableCell>{getStatusBadge(lead.status)}</TableCell>
+                  <TableCell className="text-sm">
+                    {new Date(lead.createdAt).toLocaleDateString("ar-EG")}
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data?.data?.map((lead) => (
-                  <TableRow key={lead.id}>
-                    <TableCell>
-                      <Checkbox
-                        checked={selectedIds.includes(lead.id)}
-                        onCheckedChange={(checked) => handleSelectOne(lead.id, checked as boolean)}
-                      />
-                    </TableCell>
-                    <TableCell className="font-medium">{lead.id}</TableCell>
-                    <TableCell>{lead.email}</TableCell>
-                    <TableCell>{lead.phone}</TableCell>
-                    <TableCell>{getStatusBadge(lead.status)}</TableCell>
-                    <TableCell>{getPriorityBadge(lead.priority)}</TableCell>
-                    <TableCell className="max-w-xs truncate">{lead.notes || "-"}</TableCell>
-                    <TableCell>{lead.utmSource || "-"}</TableCell>
-                    <TableCell>{new Date(lead.createdAt).toLocaleDateString()}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
 
       {data?.pagination && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Showing {(page - 1) * 50 + 1} to {Math.min(page * 50, data.pagination.total)} of{" "}
-            {data.pagination.total} results
+            عرض {data.pagination.total} نتائج
           </p>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setPage(page - 1)}
-              disabled={page === 1}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => setPage(page + 1)}
-              disabled={page >= data.pagination.totalPages}
-            >
-              Next
-            </Button>
+            <Button variant="outline" onClick={() => setPage(page - 1)} disabled={page === 1}>السابق</Button>
+            <Button variant="outline" onClick={() => setPage(page + 1)} disabled={page >= data.pagination.totalPages}>التالي</Button>
           </div>
         </div>
       )}

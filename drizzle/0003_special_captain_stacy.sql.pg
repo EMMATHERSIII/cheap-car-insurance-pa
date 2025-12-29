@@ -1,0 +1,28 @@
+CREATE TABLE "ab_test_events" (
+	"id" SERIAL NOT NULL,
+	"variantId" int NOT NULL,
+	"eventType" enum('view','conversion') NOT NULL,
+	"sessionId" varchar(100) NOT NULL,
+	"ipAddress" varchar(45),
+	"userAgent" TEXT,
+	"leadId" int,
+	"createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	CONSTRAINT "ab_test_events_id" PRIMARY KEY("id")
+);
+--> statement-breakpoint
+CREATE TABLE "ab_test_variants" (
+	"id" SERIAL NOT NULL,
+	"name" varchar(200) NOT NULL,
+	"headline" varchar(500) NOT NULL,
+	"subheadline" TEXT,
+	"ctaText" varchar(100) NOT NULL,
+	"description" TEXT,
+	"isActive" enum('yes','no') NOT NULL DEFAULT 'yes',
+	"isDefault" enum('yes','no') NOT NULL DEFAULT 'no',
+	"createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	"updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	CONSTRAINT "ab_test_variants_id" PRIMARY KEY("id")
+);
+--> statement-breakpoint
+ALTER TABLE "ab_test_events" ADD CONSTRAINT "ab_test_events_variantId_ab_test_variants_id_fk" FOREIGN KEY ("variantId") REFERENCES "ab_test_variants"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "ab_test_events" ADD CONSTRAINT "ab_test_events_leadId_leads_id_fk" FOREIGN KEY ("leadId") REFERENCES "leads"("id") ON DELETE no action ON UPDATE no action;

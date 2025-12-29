@@ -1,0 +1,35 @@
+CREATE TABLE "blog_posts" (
+	"id" SERIAL NOT NULL,
+	"title" varchar(500) NOT NULL,
+	"slug" varchar(500) NOT NULL,
+	"excerpt" TEXT,
+	"content" TEXT NOT NULL,
+	"coverImage" varchar(500),
+	"category" varchar(100),
+	"tags" TEXT,
+	"metaTitle" varchar(200),
+	"metaDescription" TEXT,
+	"status" VARCHAR(20) NOT NULL DEFAULT 'draft',
+	"authorId" int,
+	"publishedAt" timestamp,
+	"createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	"updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	CONSTRAINT "blog_posts_id" PRIMARY KEY("id"),
+	CONSTRAINT "blog_posts_slug_unique" UNIQUE("slug")
+);
+--> statement-breakpoint
+CREATE TABLE "contact_messages" (
+	"id" SERIAL NOT NULL,
+	"name" varchar(200) NOT NULL,
+	"email" varchar(320) NOT NULL,
+	"phone" varchar(20),
+	"subject" varchar(300),
+	"message" TEXT NOT NULL,
+	"status" VARCHAR(20) NOT NULL DEFAULT 'new',
+	"ipAddress" varchar(45),
+	"userAgent" TEXT,
+	"createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	CONSTRAINT "contact_messages_id" PRIMARY KEY("id")
+);
+--> statement-breakpoint
+ALTER TABLE "blog_posts" ADD CONSTRAINT "blog_posts_authorId_users_id_fk" FOREIGN KEY ("authorId") REFERENCES "users"("id") ON DELETE no action ON UPDATE no action;

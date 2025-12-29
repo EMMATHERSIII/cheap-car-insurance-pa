@@ -203,3 +203,15 @@ export const importJobs = pgTable("import_jobs", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   completedAt: timestamp("completedAt"),
 });
+
+export const webhooks = pgTable("webhooks", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 200 }).notNull(),
+  url: text("url").notNull(),
+  method: varchar("method", { length: 10 }).default("POST"),
+  entityType: varchar("entityType", { length: 50 }).default("all"),
+  isActive: yesNoEnum("isActive").default("yes").notNull(),
+  headers: text("headers"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+});

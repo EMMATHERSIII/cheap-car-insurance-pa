@@ -1,0 +1,16 @@
+CREATE TABLE "express_leads" (
+	"id" SERIAL NOT NULL,
+	"email" varchar(320) NOT NULL,
+	"phone" varchar(20) NOT NULL,
+	"ipAddress" varchar(45),
+	"userAgent" TEXT,
+	"referrer" TEXT,
+	"utmSource" varchar(200),
+	"utmMedium" varchar(200),
+	"utmCampaign" varchar(200),
+	"status" VARCHAR(20) NOT NULL DEFAULT 'new',
+	"notes" TEXT,
+	"createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	"updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	CONSTRAINT "express_leads_id" PRIMARY KEY("id")
+);

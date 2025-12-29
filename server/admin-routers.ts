@@ -24,12 +24,11 @@ import {
   getAllSettings,
   getSettingByKey,
   upsertSetting,
-  createImportJob,
-  updateImportJob,
-  getImportJobById,
-  getAllImportJobs,
+  listWebhooks,
+  createWebhook,
+  updateWebhook,
+  deleteWebhook,
 } from "./admin-db";
-import * as XLSX from "xlsx";
 import { getLeadById, getExpressLeadById } from "./db";
 
 /**
@@ -59,6 +58,10 @@ export const adminRouter = router({
           sortBy: z.string().optional(),
           sortOrder: z.enum(["asc", "desc"]).optional(),
           includeDeleted: z.boolean().optional(),
+          startDate: z.date().optional(),
+          endDate: z.date().optional(),
+          month: z.number().optional(),
+          year: z.number().optional(),
         })
       )
       .query(async ({ ctx, input }) => {
@@ -120,36 +123,16 @@ export const adminRouter = router({
         return await bulkDeleteLeads(input.ids);
       }),
 
-    bulkAssign: protectedProcedure
-      .input(
-        z.object({
-          ids: z.array(z.number()),
-          userId: z.number(),
-        })
-      )
-      .mutation(async ({ ctx, input }) => {
-        if (ctx.user.role !== "admin" && ctx.user.role !== "manager") {
-          throw new TRPCError({ code: "FORBIDDEN" });
-        }
-
-        await logAdminActivity({
-          userId: ctx.user.id,
-          action: "bulk_assign",
-          entityType: "leads",
-          details: JSON.stringify({ ids: input.ids, assignedTo: input.userId }),
-          ipAddress: ctx.req.ip || "",
-          userAgent: ctx.req.headers["user-agent"] || "",
-        });
-
-        return await bulkAssignLeads(input.ids, input.userId);
-      }),
-
     export: protectedProcedure
       .input(
         z.object({
           status: z.string().optional(),
           priority: z.string().optional(),
           search: z.string().optional(),
+          startDate: z.date().optional(),
+          endDate: z.date().optional(),
+          month: z.number().optional(),
+          year: z.number().optional(),
         })
       )
       .query(async ({ ctx, input }) => {
@@ -217,6 +200,10 @@ export const adminRouter = router({
           sortBy: z.string().optional(),
           sortOrder: z.enum(["asc", "desc"]).optional(),
           includeDeleted: z.boolean().optional(),
+          startDate: z.date().optional(),
+          endDate: z.date().optional(),
+          month: z.number().optional(),
+          year: z.number().optional(),
         })
       )
       .query(async ({ ctx, input }) => {
@@ -226,88 +213,16 @@ export const adminRouter = router({
         return await getAllExpressLeads(input);
       }),
 
-    getById: protectedProcedure
-      .input(z.object({ id: z.number() }))
-      .query(async ({ ctx, input }) => {
-        if (ctx.user.role !== "admin" && ctx.user.role !== "manager") {
-          throw new TRPCError({ code: "FORBIDDEN" });
-        }
-        return await getExpressLeadById(input.id);
-      }),
-
-    bulkUpdateStatus: protectedProcedure
-      .input(
-        z.object({
-          ids: z.array(z.number()),
-          status: z.string(),
-        })
-      )
-      .mutation(async ({ ctx, input }) => {
-        if (ctx.user.role !== "admin" && ctx.user.role !== "manager") {
-          throw new TRPCError({ code: "FORBIDDEN" });
-        }
-
-        await logAdminActivity({
-          userId: ctx.user.id,
-          action: "bulk_update_status",
-          entityType: "express_leads",
-          details: JSON.stringify({ ids: input.ids, status: input.status }),
-          ipAddress: ctx.req.ip || "",
-          userAgent: ctx.req.headers["user-agent"] || "",
-        });
-
-        return await bulkUpdateExpressLeadStatus(input.ids, input.status);
-      }),
-
-    bulkDelete: protectedProcedure
-      .input(z.object({ ids: z.array(z.number()) }))
-      .mutation(async ({ ctx, input }) => {
-        if (ctx.user.role !== "admin") {
-          throw new TRPCError({ code: "FORBIDDEN" });
-        }
-
-        await logAdminActivity({
-          userId: ctx.user.id,
-          action: "bulk_delete",
-          entityType: "express_leads",
-          details: JSON.stringify({ ids: input.ids }),
-          ipAddress: ctx.req.ip || "",
-          userAgent: ctx.req.headers["user-agent"] || "",
-        });
-
-        return await bulkDeleteExpressLeads(input.ids);
-      }),
-
-    bulkAssign: protectedProcedure
-      .input(
-        z.object({
-          ids: z.array(z.number()),
-          userId: z.number(),
-        })
-      )
-      .mutation(async ({ ctx, input }) => {
-        if (ctx.user.role !== "admin" && ctx.user.role !== "manager") {
-          throw new TRPCError({ code: "FORBIDDEN" });
-        }
-
-        await logAdminActivity({
-          userId: ctx.user.id,
-          action: "bulk_assign",
-          entityType: "express_leads",
-          details: JSON.stringify({ ids: input.ids, assignedTo: input.userId }),
-          ipAddress: ctx.req.ip || "",
-          userAgent: ctx.req.headers["user-agent"] || "",
-        });
-
-        return await bulkAssignExpressLeads(input.ids, input.userId);
-      }),
-
     export: protectedProcedure
       .input(
         z.object({
           status: z.string().optional(),
           priority: z.string().optional(),
           search: z.string().optional(),
+          startDate: z.date().optional(),
+          endDate: z.date().optional(),
+          month: z.number().optional(),
+          year: z.number().optional(),
         })
       )
       .query(async ({ ctx, input }) => {
@@ -328,162 +243,49 @@ export const adminRouter = router({
 
         return result.data;
       }),
-
-    notes: router({
-      create: protectedProcedure
-        .input(
-          z.object({
-            expressLeadId: z.number(),
-            noteType: z.enum(["call", "email", "sms", "meeting", "general"]),
-            content: z.string(),
-            isImportant: z.enum(["yes", "no"]).optional(),
-          })
-        )
-        .mutation(async ({ ctx, input }) => {
-          if (ctx.user.role !== "admin" && ctx.user.role !== "manager") {
-            throw new TRPCError({ code: "FORBIDDEN" });
-          }
-
-          return await createLeadNote({
-            ...input,
-            userId: ctx.user.id,
-          });
-        }),
-
-      list: protectedProcedure
-        .input(z.object({ expressLeadId: z.number() }))
-        .query(async ({ ctx, input }) => {
-          if (ctx.user.role !== "admin" && ctx.user.role !== "manager") {
-            throw new TRPCError({ code: "FORBIDDEN" });
-          }
-
-          return await getExpressLeadNotes(input.expressLeadId);
-        }),
-    }),
   }),
 
-  // Contact Messages Management
-  contactMessages: router({
-    list: protectedProcedure
-      .input(
-        z.object({
-          page: z.number().optional(),
-          limit: z.number().optional(),
-          status: z.string().optional(),
-          priority: z.string().optional(),
-          search: z.string().optional(),
-          sortBy: z.string().optional(),
-          sortOrder: z.enum(["asc", "desc"]).optional(),
-          includeDeleted: z.boolean().optional(),
-        })
-      )
-      .query(async ({ ctx, input }) => {
-        if (ctx.user.role !== "admin" && ctx.user.role !== "manager") {
-          throw new TRPCError({ code: "FORBIDDEN" });
-        }
-        return await getAllContactMessages(input);
-      }),
-
-    export: protectedProcedure
-      .input(
-        z.object({
-          status: z.string().optional(),
-          priority: z.string().optional(),
-          search: z.string().optional(),
-        })
-      )
-      .query(async ({ ctx, input }) => {
-        if (ctx.user.role !== "admin" && ctx.user.role !== "manager") {
-          throw new TRPCError({ code: "FORBIDDEN" });
-        }
-
-        const result = await getAllContactMessages({ ...input, limit: 10000 });
-
-        await logAdminActivity({
-          userId: ctx.user.id,
-          action: "export",
-          entityType: "contact_messages",
-          details: JSON.stringify({ count: result.data.length }),
-          ipAddress: ctx.req.ip || "",
-          userAgent: ctx.req.headers["user-agent"] || "",
-        });
-
-        return result.data;
-      }),
-  }),
-
-  // Activity Logs
-  activityLogs: router({
-    list: protectedProcedure
-      .input(
-        z.object({
-          page: z.number().optional(),
-          limit: z.number().optional(),
-          userId: z.number().optional(),
-        })
-      )
-      .query(async ({ ctx, input }) => {
-        if (ctx.user.role !== "admin") {
-          throw new TRPCError({ code: "FORBIDDEN" });
-        }
-        return await getAdminActivityLogs(input);
-      }),
-  }),
-
-  // Email Templates
-  emailTemplates: router({
+  // Webhooks
+  webhooks: router({
     list: protectedProcedure.query(async ({ ctx }) => {
       if (ctx.user.role !== "admin") {
         throw new TRPCError({ code: "FORBIDDEN" });
       }
-      return await getAllEmailTemplates();
+      return await listWebhooks();
     }),
-
-    getByName: protectedProcedure
-      .input(z.object({ name: z.string() }))
-      .query(async ({ ctx, input }) => {
-        if (ctx.user.role !== "admin") {
-          throw new TRPCError({ code: "FORBIDDEN" });
-        }
-        return await getEmailTemplateByName(input.name);
-      }),
-
     create: protectedProcedure
-      .input(
-        z.object({
-          name: z.string(),
-          subject: z.string(),
-          htmlContent: z.string(),
-          textContent: z.string().optional(),
-          variables: z.string().optional(),
-          isActive: z.enum(["yes", "no"]).optional(),
-        })
-      )
+      .input(z.object({
+        name: z.string(),
+        url: z.string().url(),
+        method: z.string().optional(),
+        entityType: z.string().optional(),
+        isActive: z.enum(["yes", "no"]).optional(),
+        headers: z.string().optional(),
+      }))
       .mutation(async ({ ctx, input }) => {
         if (ctx.user.role !== "admin") {
           throw new TRPCError({ code: "FORBIDDEN" });
         }
-        return await createEmailTemplate(input);
+        return await createWebhook(input);
       }),
-
     update: protectedProcedure
-      .input(
-        z.object({
-          id: z.number(),
-          name: z.string().optional(),
-          subject: z.string().optional(),
-          htmlContent: z.string().optional(),
-          textContent: z.string().optional(),
-          variables: z.string().optional(),
-          isActive: z.enum(["yes", "no"]).optional(),
-        })
-      )
+      .input(z.object({
+        id: z.number(),
+        data: z.any(),
+      }))
       .mutation(async ({ ctx, input }) => {
         if (ctx.user.role !== "admin") {
           throw new TRPCError({ code: "FORBIDDEN" });
         }
-        const { id, ...updates } = input;
-        return await updateEmailTemplate(id, updates);
+        return await updateWebhook(input.id, input.data);
+      }),
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN" });
+        }
+        return await deleteWebhook(input.id);
       }),
   }),
 
@@ -495,59 +297,19 @@ export const adminRouter = router({
       }
       return await getAllSettings();
     }),
-
-    getByKey: protectedProcedure
-      .input(z.object({ key: z.string() }))
-      .query(async ({ ctx, input }) => {
-        if (ctx.user.role !== "admin") {
-          throw new TRPCError({ code: "FORBIDDEN" });
-        }
-        return await getSettingByKey(input.key);
-      }),
-
     upsert: protectedProcedure
-      .input(
-        z.object({
-          key: z.string(),
-          value: z.string(),
-          description: z.string().optional(),
-          category: z.string(),
-          dataType: z.enum(["string", "number", "boolean", "json"]).optional(),
-          isPublic: z.enum(["yes", "no"]).optional(),
-        })
-      )
+      .input(z.object({
+        key: z.string(),
+        value: z.string(),
+        description: z.string().optional(),
+        category: z.string(),
+        dataType: z.string().optional(),
+      }))
       .mutation(async ({ ctx, input }) => {
         if (ctx.user.role !== "admin") {
           throw new TRPCError({ code: "FORBIDDEN" });
         }
         return await upsertSetting(input);
-      }),
-  }),
-
-  // Import Jobs
-  importJobs: router({
-    list: protectedProcedure
-      .input(
-        z.object({
-          page: z.number().optional(),
-          limit: z.number().optional(),
-          userId: z.number().optional(),
-        })
-      )
-      .query(async ({ ctx, input }) => {
-        if (ctx.user.role !== "admin" && ctx.user.role !== "manager") {
-          throw new TRPCError({ code: "FORBIDDEN" });
-        }
-        return await getAllImportJobs(input);
-      }),
-
-    getById: protectedProcedure
-      .input(z.object({ id: z.number() }))
-      .query(async ({ ctx, input }) => {
-        if (ctx.user.role !== "admin" && ctx.user.role !== "manager") {
-          throw new TRPCError({ code: "FORBIDDEN" });
-        }
-        return await getImportJobById(input.id);
       }),
   }),
 });
