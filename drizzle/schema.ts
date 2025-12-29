@@ -70,12 +70,15 @@ export const contactMessages = pgTable("contact_messages", {
 export const leads = pgTable("leads", {
   id: serial("id").primaryKey(),
   age: integer("age").notNull(),
-  state: varchar("state", { length: 2 }).notNull(),
+  state: varchar("state", { length: 10 }).notNull(),
   zipCode: varchar("zipCode", { length: 10 }).notNull(),
-  vehicleType: varchar("vehicleType", { length: 100 }).notNull(),
-  vehicleYear: integer("vehicleYear").notNull(),
+  carMake: text("carMake"),
+  carModel: text("carModel"),
+  carYear: integer("carYear"),
+  vehicleType: varchar("vehicleType", { length: 100 }),
+  vehicleYear: integer("vehicleYear"),
   hasRecentAccidents: yesNoEnum("hasRecentAccidents").notNull(),
-  currentInsurer: varchar("currentInsurer", { length: 200 }).notNull(),
+  currentInsurer: varchar("currentInsurer", { length: 200 }),
   coverageType: varchar("coverageType", { length: 100 }).notNull(),
   ownershipStatus: ownershipStatusEnum("ownershipStatus").notNull(),
   firstName: varchar("firstName", { length: 100 }).notNull(),
@@ -94,6 +97,7 @@ export const leads = pgTable("leads", {
   sentToNetwork: varchar("sentToNetwork", { length: 200 }),
   sentAt: timestamp("sentAt"),
   estimatedValue: decimal("estimatedValue", { precision: 10, scale: 2 }),
+  notes: text("notes"),
   deletedAt: timestamp("deletedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
@@ -215,3 +219,17 @@ export const webhooks = pgTable("webhooks", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
+
+export const usersRelations = relations(users, ({ many }) => ({
+  blogPosts: many(blogPosts),
+  activityLogs: many(adminActivityLogs),
+  notes: many(leadNotes),
+}));
+
+export const leadsRelations = relations(leads, ({ many }) => ({
+  notes: many(leadNotes),
+}));
+
+export const expressLeadsRelations = relations(expressLeads, ({ many }) => ({
+  notes: many(leadNotes),
+}));
