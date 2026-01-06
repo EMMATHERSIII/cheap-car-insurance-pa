@@ -1,5 +1,4 @@
 FROM node:22-alpine
-
 WORKDIR /app
 
 # Install pnpm
@@ -10,7 +9,7 @@ COPY package.json pnpm-lock.yaml ./
 COPY patches ./patches
 
 # Install all dependencies
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --no-frozen-lockfile
 
 # Copy source code
 COPY . .
