@@ -1,4 +1,4 @@
-import * as admin from "firebase-admin";
+import admin from "firebase-admin";
 const projectId = "cheap-car-insurance-49eab";
 if (!admin.apps.length) {
   admin.initializeApp({
