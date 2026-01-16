@@ -1,5 +1,5 @@
 import admin from "firebase-admin";
-const projectId = "cheap-car-insurance-49eab";
+const projectId = "cheap-car-insurance-19e83";
 if (!admin.apps.length) {
   admin.initializeApp({
     projectId: projectId,
