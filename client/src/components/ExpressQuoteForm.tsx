@@ -2,17 +2,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { trpc } from "@/lib/trpc";
-import { db } from "@/lib/firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { toast } from "sonner";
 import { Phone, Mail, Clock, CheckCircle2 } from "lucide-react";
-
 
 export function ExpressQuoteForm() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
-
 
   const submitMutation = trpc.leads.submitExpress.useMutation({
     onSuccess: () => {
@@ -31,10 +27,9 @@ export function ExpressQuoteForm() {
     },
   });
 
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Basic validation
     if (!email || !phone) {
       toast.error("Please fill in both email and phone number");
@@ -55,23 +50,8 @@ export function ExpressQuoteForm() {
       return;
     }
 
-    try {
-      // Save to Firestore
-      await addDoc(collection(db, "leads"), {
-        email,
-        phone,
-        submittedAt: serverTimestamp(),
-        type: "express_quote"
-      });
-
-      // Also call the tRPC mutation
-      submitMutation.mutate({ email, phone });
-    } catch (error) {
-      console.error("Error submitting express form:", error);
-      toast.error("Failed to submit request. Please try again.");
-    }
+    submitMutation.mutate({ email, phone });
   };
-
 
   if (isSubmitted) {
     return (
@@ -87,3 +67,80 @@ export function ExpressQuoteForm() {
         <p className="text-green-700 text-lg">
           Our team will contact you within 24 hours to discuss your insurance options.
         </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-8 border-2 border-orange-200 shadow-lg">
+      <div className="text-center mb-6">
+        <div className="inline-flex items-center justify-center w-12 h-12 bg-orange-500 rounded-full mb-3">
+          <Clock className="w-6 h-6 text-white" />
+        </div>
+        <h3 className="text-2xl font-bold text-gray-900 mb-2">
+          In a Hurry? We'll Call You!
+        </h3>
+        <p className="text-gray-600">
+          Just leave your contact info and we'll reach out within 24 hours with personalized quotes.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label htmlFor="express-email" className="block text-sm font-medium text-gray-700 mb-2">
+            <Mail className="w-4 h-4 inline mr-1" />
+            Email Address
+          </label>
+          <Input
+            id="express-email"
+            type="email"
+            placeholder="your.email@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="h-12 text-base"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="express-phone" className="block text-sm font-medium text-gray-700 mb-2">
+            <Phone className="w-4 h-4 inline mr-1" />
+            Phone Number
+          </label>
+          <Input
+            id="express-phone"
+            type="tel"
+            placeholder="(555) 123-4567"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            required
+            className="h-12 text-base"
+          />
+        </div>
+
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full h-14 text-lg font-semibold"
+          disabled={submitMutation.isPending}
+        >
+          {submitMutation.isPending ? (
+            <>
+              <span className="animate-spin mr-2">⏳</span>
+              Submitting...
+            </>
+          ) : (
+            <>
+              <Phone className="w-5 h-5 mr-2" />
+              Call Me Back
+            </>
+          )}
+        </Button>
+
+        <p className="text-xs text-gray-500 text-center">
+          By submitting, you agree to be contacted by our partner insurance providers.
+        </p>
+      </form>
+    </div>
+  );
+}
