@@ -112,17 +112,13 @@ export const appRouter = router({
           ipAddress,
           userAgent,
           referrer,
-          status: "new",
-        });
-
-        // Get the full express lead object
-        const expressLead = await getExpressLeadById(expressLeadId);
-        
-        if (expressLead) {
+        if (expressLeadId) {
           // Send notification to owner
           notifyOwner({
             title: "⚡ Express Lead Received!",
             content: `Quick quote request! Email: ${input.email}, Phone: ${input.phone}. They want to be contacted ASAP!`
+          }).catch((err: any) => console.error("Failed to notify owner:", err));
+        }
           }).catch((err: any) => console.error("Failed to notify owner:", err));
         }
 
@@ -182,11 +178,12 @@ export const appRouter = router({
           userAgent,
           referrer,
           status: "new",
-        });
-
-        // Get the full lead object for validation and distribution
-        const lead = await getLeadById(leadId);
-        
+        if (leadId) {
+          // Send notification to owner
+          notifyOwner({
+            title: "🎉 New Lead Received!",
+            content: `${input.firstName} ${input.lastName} from ${input.zipCode} just submitted a quote request. Email: ${input.email}, Phone: ${input.phone}`
+          }).catch(err => console.error("Failed to notify owner:", err));
         if (lead) {
           // Send notification to owner
           notifyOwner({
