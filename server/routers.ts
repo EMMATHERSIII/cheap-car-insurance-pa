@@ -110,7 +110,7 @@ export const appRouter = router({
           email: input.email,
           phone: input.phone,
           ipAddress,
-          userAgent,
+        });
           referrer,
         if (expressLeadId) {
           // Send notification to owner
