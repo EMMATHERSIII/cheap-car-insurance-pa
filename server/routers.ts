@@ -15,8 +15,8 @@ import {
   getAllExpressLeads,
   updateExpressLeadStatus,
 } from "./db";
-import { notifyOwner } from "./_core/notifications";
-
+import { adminRouter } from "./admin-routers";
+import { notifyOwner } from "./_core/notification";
 export const appRouter = router({
   leads: router({
     submitExpress: publicProcedure
@@ -162,6 +162,7 @@ export const appRouter = router({
         return { success: true, id: messageId };
       }),
   }),
+  admin: adminRouter,
 });
 
 export type AppRouter = typeof appRouter;

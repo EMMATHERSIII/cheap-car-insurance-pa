@@ -1,64 +1,66 @@
-import { eq, desc, asc, and, or, isNull, sql, count, ilike, gte, lte } from "drizzle-orm";
-import { getDb } from "./db";
-import {
-  leads,
-  expressLeads,
-  contactMessages,
-  blogPosts,
-  leadNotes,
-  adminActivityLogs,
-  emailTemplates,
-  settings,
-  webhooks,
-} from "../drizzle/schema";
+import { db as fdb } from "./firebase";
+
+const COLLECTIONS = {
+  LEADS: "leads",
+  EXPRESS_LEADS: "express_leads",
+  CONTACT_MESSAGES: "contact_messages",
+  ARTICLES: "articles",
+  LEAD_NOTES: "lead_notes",
+  ADMIN_ACTIVITY_LOGS: "admin_activity_logs",
+  EMAIL_TEMPLATES: "email_templates",
+  SETTINGS: "settings",
+  WEBHOOKS: "webhooks",
+};
 
 /**
  * Admin Dashboard Statistics
  */
 export async function getDashboardStats() {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-  const [
-    totalLeads,
-    totalExpressLeads,
-    totalContactMessages,
-    totalBlogPosts,
-    newLeadsToday,
-    newExpressLeadsToday,
-  ] = await Promise.all([
-    db.select({ count: count() }).from(leads).where(isNull(leads.deletedAt)),
-    db.select({ count: count() }).from(expressLeads).where(isNull(expressLeads.deletedAt)),
-    db.select({ count: count() }).from(contactMessages).where(isNull(contactMessages.deletedAt)),
-    db.select({ count: count() }).from(blogPosts).where(isNull(blogPosts.deletedAt)),
-    db
-      .select({ count: count() })
-      .from(leads)
-      .where(
-        and(
-          isNull(leads.deletedAt),
-          sql`DATE(${leads.createdAt}) = CURRENT_DATE`
-        )
-      ),
-    db
-      .select({ count: count() })
-      .from(expressLeads)
-      .where(
-        and(
-          isNull(expressLeads.deletedAt),
-          sql`DATE(${expressLeads.createdAt}) = CURRENT_DATE`
-        )
-      ),
-  ]);
+    const [
+      leadsSnapshot,
+      expressLeadsSnapshot,
+      contactMessagesSnapshot,
+      articlesSnapshot,
+      newLeadsTodaySnapshot,
+      newExpressLeadsTodaySnapshot,
+    ] = await Promise.all([
+      fdb.collection(COLLECTIONS.LEADS).where("deletedAt", "==", null).get(),
+      fdb.collection(COLLECTIONS.EXPRESS_LEADS).where("deletedAt", "==", null).get(),
+      fdb.collection(COLLECTIONS.CONTACT_MESSAGES).where("deletedAt", "==", null).get(),
+      fdb.collection(COLLECTIONS.ARTICLES).where("deletedAt", "==", null).get(),
+      fdb.collection(COLLECTIONS.LEADS)
+        .where("deletedAt", "==", null)
+        .where("createdAt", ">=", today)
+        .get(),
+      fdb.collection(COLLECTIONS.EXPRESS_LEADS)
+        .where("deletedAt", "==", null)
+        .where("createdAt", ">=", today)
+        .get(),
+    ]);
 
-  return {
-    totalLeads: totalLeads[0]?.count || 0,
-    totalExpressLeads: totalExpressLeads[0]?.count || 0,
-    totalContactMessages: totalContactMessages[0]?.count || 0,
-    totalBlogPosts: totalBlogPosts[0]?.count || 0,
-    newLeadsToday: newLeadsToday[0]?.count || 0,
-    newExpressLeadsToday: newExpressLeadsToday[0]?.count || 0,
-  };
+    return {
+      totalLeads: leadsSnapshot.size || 0,
+      totalExpressLeads: expressLeadsSnapshot.size || 0,
+      totalContactMessages: contactMessagesSnapshot.size || 0,
+      totalBlogPosts: articlesSnapshot.size || 0,
+      newLeadsToday: newLeadsTodaySnapshot.size || 0,
+      newExpressLeadsToday: newExpressLeadsTodaySnapshot.size || 0,
+    };
+  } catch (error) {
+    console.error("Error getting dashboard stats:", error);
+    return {
+      totalLeads: 0,
+      totalExpressLeads: 0,
+      totalContactMessages: 0,
+      totalBlogPosts: 0,
+      newLeadsToday: 0,
+      newExpressLeadsToday: 0,
+    };
+  }
 }
 
 /**
@@ -78,427 +80,421 @@ export async function getAllLeads(options: {
   month?: number;
   year?: number;
 }) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  try {
+    let query = fdb.collection(COLLECTIONS.LEADS);
 
-  const {
-    page = 1,
-    limit = 50,
-    status,
-    priority,
-    search,
-    sortBy = "createdAt",
-    sortOrder = "desc",
-    includeDeleted = false,
-    startDate,
-    endDate,
-    month,
-    year,
-  } = options;
+    // Filter by deletion status
+    if (!options.includeDeleted) {
+      query = query.where("deletedAt", "==", null);
+    }
 
-  const offset = (page - 1) * limit;
-  const conditions = [];
+    // Filter by status
+    if (options.status) {
+      query = query.where("status", "==", options.status);
+    }
 
-  if (!includeDeleted) {
-    conditions.push(isNull(leads.deletedAt));
-  }
+    // Get all documents
+    const snapshot = await query.get();
+    let leads = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-  if (status && status !== "all") {
-    conditions.push(eq(leads.status, status as any));
-  }
+    // Client-side filtering and sorting
+    if (options.search) {
+      const searchLower = options.search.toLowerCase();
+      leads = leads.filter(lead =>
+        lead.email?.toLowerCase().includes(searchLower) ||
+        lead.firstName?.toLowerCase().includes(searchLower) ||
+        lead.lastName?.toLowerCase().includes(searchLower)
+      );
+    }
 
-  if (priority) {
-    conditions.push(eq(leads.priority, priority as any));
-  }
+    if (options.startDate) {
+      leads = leads.filter(lead => new Date(lead.createdAt) >= options.startDate!);
+    }
 
-  if (search) {
-    conditions.push(
-      or(
-        ilike(leads.email, `%${search}%`),
-        ilike(leads.phone, `%${search}%`),
-        ilike(leads.firstName, `%${search}%`),
-        ilike(leads.lastName, `%${search}%`),
-        ilike(leads.zipCode, `%${search}%`)
-      )
-    );
-  }
+    if (options.endDate) {
+      leads = leads.filter(lead => new Date(lead.createdAt) <= options.endDate!);
+    }
 
-  if (startDate) {
-    conditions.push(gte(leads.createdAt, startDate));
-  }
-  if (endDate) {
-    conditions.push(lte(leads.createdAt, endDate));
-  }
-  
-  if (month) {
-    conditions.push(sql`EXTRACT(MONTH FROM ${leads.createdAt}) = ${month}`);
-  }
-  if (year) {
-    conditions.push(sql`EXTRACT(YEAR FROM ${leads.createdAt}) = ${year}`);
-  }
+    if (options.month && options.year) {
+      leads = leads.filter(lead => {
+        const date = new Date(lead.createdAt);
+        return date.getMonth() === options.month! - 1 && date.getFullYear() === options.year!;
+      });
+    }
 
-  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+    // Sort
+    const sortBy = options.sortBy || "createdAt";
+    const sortOrder = options.sortOrder || "desc";
+    leads.sort((a, b) => {
+      const aVal = a[sortBy as keyof typeof a];
+      const bVal = b[sortBy as keyof typeof b];
+      if (aVal < bVal) return sortOrder === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    });
 
-  const orderByColumn = sortBy === "createdAt" ? leads.createdAt : leads[sortBy as keyof typeof leads] || leads.createdAt;
-  const orderBy = sortOrder === "asc" ? asc(orderByColumn) : desc(orderByColumn);
+    // Pagination
+    const page = options.page || 1;
+    const limit = options.limit || 10;
+    const start = (page - 1) * limit;
+    const paginatedLeads = leads.slice(start, start + limit);
 
-  const [data, totalCount] = await Promise.all([
-    db.select().from(leads).where(whereClause).orderBy(orderBy).limit(limit).offset(offset),
-    db.select({ count: count() }).from(leads).where(whereClause),
-  ]);
-
-  return {
-    data,
-    pagination: {
+    return {
+      leads: paginatedLeads,
+      total: leads.length,
       page,
       limit,
-      total: totalCount[0]?.count || 0,
-      totalPages: Math.ceil((totalCount[0]?.count || 0) / limit),
-    },
-  };
+      pages: Math.ceil(leads.length / limit),
+    };
+  } catch (error) {
+    console.error("Error getting all leads:", error);
+    return { leads: [], total: 0, page: 1, limit: 10, pages: 0 };
+  }
 }
 
 /**
- * Get all express leads with pagination and filters
+ * Get all express leads
  */
 export async function getAllExpressLeads(options: {
   page?: number;
   limit?: number;
   status?: string;
-  priority?: string;
   search?: string;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
   includeDeleted?: boolean;
-  startDate?: Date;
-  endDate?: Date;
-  month?: number;
-  year?: number;
-}) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
+} = {}) {
+  try {
+    let query = fdb.collection(COLLECTIONS.EXPRESS_LEADS);
 
-  const {
-    page = 1,
-    limit = 50,
-    status,
-    priority,
-    search,
-    sortBy = "createdAt",
-    sortOrder = "desc",
-    includeDeleted = false,
-    startDate,
-    endDate,
-    month,
-    year,
-  } = options;
+    if (!options.includeDeleted) {
+      query = query.where("deletedAt", "==", null);
+    }
 
-  const offset = (page - 1) * limit;
-  const conditions = [];
+    if (options.status) {
+      query = query.where("status", "==", options.status);
+    }
 
-  if (!includeDeleted) {
-    conditions.push(isNull(expressLeads.deletedAt));
-  }
+    const snapshot = await query.get();
+    let leads = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-  if (status && status !== "all") {
-    conditions.push(eq(expressLeads.status, status as any));
-  }
+    if (options.search) {
+      const searchLower = options.search.toLowerCase();
+      leads = leads.filter(lead =>
+        lead.email?.toLowerCase().includes(searchLower) ||
+        lead.phone?.includes(options.search!)
+      );
+    }
 
-  if (priority) {
-    conditions.push(eq(expressLeads.priority, priority as any));
-  }
+    // Sort
+    const sortBy = options.sortBy || "createdAt";
+    const sortOrder = options.sortOrder || "desc";
+    leads.sort((a, b) => {
+      const aVal = a[sortBy as keyof typeof a];
+      const bVal = b[sortBy as keyof typeof b];
+      if (aVal < bVal) return sortOrder === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    });
 
-  if (search) {
-    conditions.push(
-      or(
-        ilike(expressLeads.email, `%${search}%`),
-        ilike(expressLeads.phone, `%${search}%`)
-      )
-    );
-  }
+    // Pagination
+    const page = options.page || 1;
+    const limit = options.limit || 10;
+    const start = (page - 1) * limit;
+    const paginatedLeads = leads.slice(start, start + limit);
 
-  if (startDate) {
-    conditions.push(gte(expressLeads.createdAt, startDate));
-  }
-  if (endDate) {
-    conditions.push(lte(expressLeads.createdAt, endDate));
-  }
-  
-  if (month) {
-    conditions.push(sql`EXTRACT(MONTH FROM ${expressLeads.createdAt}) = ${month}`);
-  }
-  if (year) {
-    conditions.push(sql`EXTRACT(YEAR FROM ${expressLeads.createdAt}) = ${year}`);
-  }
-
-  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-
-  const orderByColumn = sortBy === "createdAt" ? expressLeads.createdAt : expressLeads[sortBy as keyof typeof expressLeads] || expressLeads.createdAt;
-  const orderBy = sortOrder === "asc" ? asc(orderByColumn) : desc(orderByColumn);
-
-  const [data, totalCount] = await Promise.all([
-    db.select().from(expressLeads).where(whereClause).orderBy(orderBy).limit(limit).offset(offset),
-    db.select({ count: count() }).from(expressLeads).where(whereClause),
-  ]);
-
-  return {
-    data,
-    pagination: {
+    return {
+      leads: paginatedLeads,
+      total: leads.length,
       page,
       limit,
-      total: totalCount[0]?.count || 0,
-      totalPages: Math.ceil((totalCount[0]?.count || 0) / limit),
-    },
-  };
+      pages: Math.ceil(leads.length / limit),
+    };
+  } catch (error) {
+    console.error("Error getting all express leads:", error);
+    return { leads: [], total: 0, page: 1, limit: 10, pages: 0 };
+  }
 }
 
 /**
- * Bulk update lead status
+ * Get contact messages
  */
-export async function bulkUpdateLeadStatus(ids: number[], status: string) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
+export async function getContactMessages(options: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortOrder?: "asc" | "desc";
+  includeDeleted?: boolean;
+} = {}) {
+  try {
+    let query = fdb.collection(COLLECTIONS.CONTACT_MESSAGES);
 
-  await db.update(leads).set({ status: status as any, updatedAt: new Date() }).where(sql`id IN (${sql.join(ids.map(id => sql`${id}`), sql`, `)})`);
+    if (!options.includeDeleted) {
+      query = query.where("deletedAt", "==", null);
+    }
 
-  return { success: true, updated: ids.length };
+    const snapshot = await query.orderBy("createdAt", options.sortOrder === "asc" ? "asc" : "desc").get();
+    let messages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    if (options.search) {
+      const searchLower = options.search.toLowerCase();
+      messages = messages.filter(msg =>
+        msg.email?.toLowerCase().includes(searchLower) ||
+        msg.name?.toLowerCase().includes(searchLower) ||
+        msg.subject?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Pagination
+    const page = options.page || 1;
+    const limit = options.limit || 10;
+    const start = (page - 1) * limit;
+    const paginatedMessages = messages.slice(start, start + limit);
+
+    return {
+      messages: paginatedMessages,
+      total: messages.length,
+      page,
+      limit,
+      pages: Math.ceil(messages.length / limit),
+    };
+  } catch (error) {
+    console.error("Error getting contact messages:", error);
+    return { messages: [], total: 0, page: 1, limit: 10, pages: 0 };
+  }
 }
 
 /**
- * Bulk update express lead status
+ * Update lead status
  */
-export async function bulkUpdateExpressLeadStatus(ids: number[], status: string) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  await db.update(expressLeads).set({ status: status as any, updatedAt: new Date() }).where(sql`id IN (${sql.join(ids.map(id => sql`${id}`), sql`, `)})`);
-
-  return { success: true, updated: ids.length };
+export async function updateLeadStatus(leadIds: number[], status: string) {
+  try {
+    const batch = fdb.batch();
+    for (const id of leadIds) {
+      const docRef = fdb.collection(COLLECTIONS.LEADS).doc(id.toString());
+      batch.update(docRef, {
+        status,
+        updatedAt: new Date(),
+      });
+    }
+    await batch.commit();
+  } catch (error) {
+    console.error("Error updating lead status:", error);
+    throw error;
+  }
 }
 
 /**
- * Bulk soft delete leads
+ * Update express lead status
  */
-export async function bulkDeleteLeads(ids: number[]) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  await db.update(leads).set({ deletedAt: new Date() }).where(sql`id IN (${sql.join(ids.map(id => sql`${id}`), sql`, `)})`);
-
-  return { success: true, deleted: ids.length };
+export async function updateExpressLeadStatus(leadIds: number[], status: string) {
+  try {
+    const batch = fdb.batch();
+    for (const id of leadIds) {
+      const docRef = fdb.collection(COLLECTIONS.EXPRESS_LEADS).doc(id.toString());
+      batch.update(docRef, {
+        status,
+        updatedAt: new Date(),
+      });
+    }
+    await batch.commit();
+  } catch (error) {
+    console.error("Error updating express lead status:", error);
+    throw error;
+  }
 }
 
 /**
- * Bulk soft delete express leads
+ * Delete leads
  */
-export async function bulkDeleteExpressLeads(ids: number[]) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  await db.update(expressLeads).set({ deletedAt: new Date() }).where(sql`id IN (${sql.join(ids.map(id => sql`${id}`), sql`, `)})`);
-
-  return { success: true, deleted: ids.length };
+export async function deleteLeads(leadIds: number[]) {
+  try {
+    const batch = fdb.batch();
+    for (const id of leadIds) {
+      const docRef = fdb.collection(COLLECTIONS.LEADS).doc(id.toString());
+      batch.update(docRef, {
+        deletedAt: new Date(),
+      });
+    }
+    await batch.commit();
+  } catch (error) {
+    console.error("Error deleting leads:", error);
+    throw error;
+  }
 }
 
 /**
- * Bulk assign leads to user
+ * Delete express leads
  */
-export async function bulkAssignLeads(ids: number[], userId: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  await db.update(leads).set({ assignedTo: userId, updatedAt: new Date() }).where(sql`id IN (${sql.join(ids.map(id => sql`${id}`), sql`, `)})`);
-
-  return { success: true, assigned: ids.length };
+export async function deleteExpressLeads(leadIds: number[]) {
+  try {
+    const batch = fdb.batch();
+    for (const id of leadIds) {
+      const docRef = fdb.collection(COLLECTIONS.EXPRESS_LEADS).doc(id.toString());
+      batch.update(docRef, {
+        deletedAt: new Date(),
+      });
+    }
+    await batch.commit();
+  } catch (error) {
+    console.error("Error deleting express leads:", error);
+    throw error;
+  }
 }
 
 /**
- * Bulk assign express leads to user
+ * Assign lead to user
  */
-export async function bulkAssignExpressLeads(ids: number[], userId: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  await db.update(expressLeads).set({ assignedTo: userId, updatedAt: new Date() }).where(sql`id IN (${sql.join(ids.map(id => sql`${id}`), sql`, `)})`);
-
-  return { success: true, assigned: ids.length };
+export async function assignLeadToUser(leadIds: number[], userId: string) {
+  try {
+    const batch = fdb.batch();
+    for (const id of leadIds) {
+      const docRef = fdb.collection(COLLECTIONS.LEADS).doc(id.toString());
+      batch.update(docRef, {
+        assignedTo: userId,
+        updatedAt: new Date(),
+      });
+    }
+    await batch.commit();
+  } catch (error) {
+    console.error("Error assigning leads:", error);
+    throw error;
+  }
 }
 
 /**
- * Lead Notes
+ * Export leads to CSV format
  */
-export async function createLeadNote(note: any) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
+export async function exportLeads(format: "csv" | "json" = "csv") {
+  try {
+    const snapshot = await fdb.collection(COLLECTIONS.LEADS).where("deletedAt", "==", null).get();
+    const leads = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-  return await db.insert(leadNotes).values(note).returning({ id: leadNotes.id });
+    if (format === "json") {
+      return JSON.stringify(leads, null, 2);
+    }
+
+    // CSV format
+    if (leads.length === 0) return "";
+
+    const headers = Object.keys(leads[0]);
+    const csvContent = [
+      headers.join(","),
+      ...leads.map(lead =>
+        headers.map(header => {
+          const value = lead[header as keyof typeof lead];
+          if (typeof value === "string" && value.includes(",")) {
+            return `"${value}"`;
+          }
+          return value;
+        }).join(",")
+      ),
+    ].join("\n");
+
+    return csvContent;
+  } catch (error) {
+    console.error("Error exporting leads:", error);
+    throw error;
+  }
 }
 
+/**
+ * Export express leads to CSV format
+ */
+export async function exportExpressLeads(format: "csv" | "json" = "csv") {
+  try {
+    const snapshot = await fdb.collection(COLLECTIONS.EXPRESS_LEADS).where("deletedAt", "==", null).get();
+    const leads = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    if (format === "json") {
+      return JSON.stringify(leads, null, 2);
+    }
+
+    // CSV format
+    if (leads.length === 0) return "";
+
+    const headers = Object.keys(leads[0]);
+    const csvContent = [
+      headers.join(","),
+      ...leads.map(lead =>
+        headers.map(header => {
+          const value = lead[header as keyof typeof lead];
+          if (typeof value === "string" && value.includes(",")) {
+            return `"${value}"`;
+          }
+          return value;
+        }).join(",")
+      ),
+    ].join("\n");
+
+    return csvContent;
+  } catch (error) {
+    console.error("Error exporting express leads:", error);
+    throw error;
+  }
+}
+
+/**
+ * Add note to lead
+ */
+export async function addLeadNote(leadId: number, note: string, userId: string) {
+  try {
+    await fdb.collection(COLLECTIONS.LEAD_NOTES).add({
+      leadId,
+      note,
+      userId,
+      createdAt: new Date(),
+    });
+  } catch (error) {
+    console.error("Error adding lead note:", error);
+    throw error;
+  }
+}
+
+/**
+ * Get lead notes
+ */
 export async function getLeadNotes(leadId: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  return await db.select().from(leadNotes).where(eq(leadNotes.leadId, leadId)).orderBy(desc(leadNotes.createdAt));
-}
-
-export async function getExpressLeadNotes(expressLeadId: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  return await db.select().from(leadNotes).where(eq(leadNotes.expressLeadId, expressLeadId)).orderBy(desc(leadNotes.createdAt));
-}
-
-/**
- * Admin Activity Logs
- */
-export async function logAdminActivity(log: any) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  return await db.insert(adminActivityLogs).values(log);
-}
-
-export async function getAdminActivityLogs(options: { page?: number; limit?: number; userId?: number }) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  const { page = 1, limit = 50, userId } = options;
-  const offset = (page - 1) * limit;
-
-  const whereClause = userId ? eq(adminActivityLogs.userId, userId) : undefined;
-
-  const [data, totalCount] = await Promise.all([
-    db.select().from(adminActivityLogs).where(whereClause).orderBy(desc(adminActivityLogs.createdAt)).limit(limit).offset(offset),
-    db.select({ count: count() }).from(adminActivityLogs).where(whereClause),
-  ]);
-
-  return {
-    data,
-    pagination: {
-      page,
-      limit,
-      total: totalCount[0]?.count || 0,
-      totalPages: Math.ceil((totalCount[0]?.count || 0) / limit),
-    },
-  };
+  try {
+    const snapshot = await fdb.collection(COLLECTIONS.LEAD_NOTES)
+      .where("leadId", "==", leadId)
+      .orderBy("createdAt", "desc")
+      .get();
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error("Error getting lead notes:", error);
+    return [];
+  }
 }
 
 /**
- * Email Templates
+ * Log admin activity
  */
-export async function getAllEmailTemplates() {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  return await db.select().from(emailTemplates).orderBy(asc(emailTemplates.name));
-}
-
-export async function getEmailTemplateByName(name: string) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  const result = await db.select().from(emailTemplates).where(eq(emailTemplates.name, name)).limit(1);
-  return result[0];
-}
-
-export async function createEmailTemplate(template: any) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  return await db.insert(emailTemplates).values(template).returning({ id: emailTemplates.id });
-}
-
-export async function updateEmailTemplate(id: number, template: any) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  await db.update(emailTemplates).set({ ...template, updatedAt: new Date() }).where(eq(emailTemplates.id, id));
-  return { success: true };
+export async function logAdminActivity(userId: string, action: string, details: any) {
+  try {
+    await fdb.collection(COLLECTIONS.ADMIN_ACTIVITY_LOGS).add({
+      userId,
+      action,
+      details,
+      createdAt: new Date(),
+    });
+  } catch (error) {
+    console.error("Error logging admin activity:", error);
+  }
 }
 
 /**
- * Settings
+ * Get admin activity logs
  */
-export async function getAllSettings() {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  return await db.select().from(settings).orderBy(asc(settings.category));
-}
-
-export async function getSettingByKey(key: string) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  const result = await db.select().from(settings).where(eq(settings.key, key)).limit(1);
-  return result[0];
-}
-
-export async function upsertSetting(data: any) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  return await db.insert(settings).values(data).onConflictDoUpdate({
-    target: settings.key,
-    set: { value: data.value, description: data.description, category: data.category, dataType: data.dataType, updatedAt: new Date() }
-  });
-}
-
-/**
- * Webhooks
- */
-export async function listWebhooks() {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  return await db.select().from(webhooks).orderBy(desc(webhooks.createdAt));
-}
-
-export async function createWebhook(data: any) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  return await db.insert(webhooks).values(data).returning({ id: webhooks.id });
-}
-
-export async function updateWebhook(id: number, data: any) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  await db.update(webhooks).set({ ...data, updatedAt: new Date() }).where(eq(webhooks.id, id));
-  return { success: true };
-}
-
-export async function deleteWebhook(id: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  await db.delete(webhooks).where(eq(webhooks.id, id));
-  return { success: true };
-}
-
-/**
- * Contact Messages
- */
-export async function getAllContactMessages(options: { page?: number; limit?: number }) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  const { page = 1, limit = 50 } = options;
-  const offset = (page - 1) * limit;
-
-  const [data, totalCount] = await Promise.all([
-    db.select().from(contactMessages).where(isNull(contactMessages.deletedAt)).orderBy(desc(contactMessages.createdAt)).limit(limit).offset(offset),
-    db.select({ count: count() }).from(contactMessages).where(isNull(contactMessages.deletedAt)),
-  ]);
-
-  return {
-    data,
-    pagination: {
-      page,
-      limit,
-      total: totalCount[0]?.count || 0,
-      totalPages: Math.ceil((totalCount[0]?.count || 0) / limit),
-    },
-  };
+export async function getAdminActivityLogs(limit: number = 100) {
+  try {
+    const snapshot = await fdb.collection(COLLECTIONS.ADMIN_ACTIVITY_LOGS)
+      .orderBy("createdAt", "desc")
+      .limit(limit)
+      .get();
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error("Error getting admin activity logs:", error);
+    return [];
+  }
 }
