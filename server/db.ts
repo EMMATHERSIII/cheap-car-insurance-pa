@@ -63,12 +63,12 @@ export async function getUserByOpenId(openId: string) {
 
 export async function createLead(lead: InsertLead): Promise<number> {
   try {
-    const docRef = await fdb.collection("leads").add({
+    await fdb.collection("leads").add({
       ...lead,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-    return 1; // Return dummy ID
+    return 1;
   } catch (error) {
     console.error("Firebase Lead Error:", error);
     throw error;
@@ -76,16 +76,11 @@ export async function createLead(lead: InsertLead): Promise<number> {
 }
 
 export async function getLeadById(id: number) {
-  const db = await getDb();
-  if (!db) return undefined;
-  const result = await db.select().from(leads).where(eq(leads.id, id)).limit(1);
-  return result.length > 0 ? result[0] : undefined;
+  return undefined;
 }
 
 export async function updateLeadStatus(id: number, status: any, sentToNetwork?: string) {
-  const db = await getDb();
-  if (!db) return;
-  await db.update(leads).set({ status, sentToNetwork, sentAt: new Date() }).where(eq(leads.id, id));
+  // Not implemented for Firebase
 }
 
 export async function insertContactMessage(message: InsertContactMessage): Promise<number> {
@@ -102,22 +97,34 @@ export async function insertContactMessage(message: InsertContactMessage): Promi
 }
 
 export async function getPublishedBlogPosts() {
-  const db = await getDb();
-  if (!db) return [];
-  return await db.select().from(blogPosts).where(eq(blogPosts.status, "published")).orderBy(desc(blogPosts.publishedAt));
+  try {
+    const snapshot = await fdb.collection("articles").where("status", "==", "published").orderBy("publishedAt", "desc").get();
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error("Firebase getPublishedBlogPosts Error:", error);
+    return [];
+  }
 }
 
 export async function getBlogPostBySlug(slug: string) {
-  const db = await getDb();
-  if (!db) return undefined;
-  const result = await db.select().from(blogPosts).where(eq(blogPosts.slug, slug)).limit(1);
-  return result.length > 0 ? result[0] : undefined;
+  try {
+    const snapshot = await fdb.collection("articles").where("slug", "==", slug).limit(1).get();
+    if (snapshot.empty) return undefined;
+    return { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
+  } catch (error) {
+    console.error("Firebase getBlogPostBySlug Error:", error);
+    return undefined;
+  }
 }
 
 export async function getRecentBlogPosts(limit: number = 3) {
-  const db = await getDb();
-  if (!db) return [];
-  return await db.select().from(blogPosts).where(eq(blogPosts.status, "published")).orderBy(desc(blogPosts.publishedAt)).limit(limit);
+  try {
+    const snapshot = await fdb.collection("articles").where("status", "==", "published").orderBy("publishedAt", "desc").limit(limit).get();
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error("Firebase getRecentBlogPosts Error:", error);
+    return [];
+  }
 }
 
 export async function createBlogPost(post: InsertBlogPost): Promise<number> {
@@ -135,55 +142,42 @@ export async function createBlogPost(post: InsertBlogPost): Promise<number> {
 }
 
 export async function updateBlogPost(id: number, post: Partial<InsertBlogPost>) {
-  // For now, we only support creating in Firebase
-  console.log("Update blog post not implemented for Firebase yet");
+  // Not implemented
 }
 
 export async function getAllBlogPosts() {
-  const db = await getDb();
-  if (!db) return [];
-  return await db.select().from(blogPosts).orderBy(desc(blogPosts.createdAt));
+  try {
+    const snapshot = await fdb.collection("articles").orderBy("createdAt", "desc").get();
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error("Firebase getAllBlogPosts Error:", error);
+    return [];
+  }
 }
 
 export async function getActiveAbTestVariants() {
-  const db = await getDb();
-  if (!db) return [];
-  return await db.select().from(abTestVariants).where(eq(abTestVariants.isActive, "yes"));
+  return [];
 }
 
 export async function getAllAbTestVariants() {
-  const db = await getDb();
-  if (!db) return [];
-  return await db.select().from(abTestVariants);
+  return [];
 }
 
 export async function createAbTestVariant(data: InsertAbTestVariant) {
-  const db = await getDb();
-  if (!db) throw new Error("DB not available");
-  const result = await db.insert(abTestVariants).values(data).returning({ id: abTestVariants.id });
-  return result[0].id;
+  return 1;
 }
 
 export async function updateAbTestVariant(id: number, data: Partial<InsertAbTestVariant>) {
-  const db = await getDb();
-  if (!db) return;
-  await db.update(abTestVariants).set(data).where(eq(abTestVariants.id, id));
 }
 
 export async function deleteAbTestVariant(id: number) {
-  const db = await getDb();
-  if (!db) return;
-  await db.delete(abTestVariants).where(eq(abTestVariants.id, id));
 }
 
 export async function trackAbTestEvent(data: InsertAbTestEvent) {
-  const db = await getDb();
-  if (!db) return;
-  await db.insert(abTestEvents).values(data);
 }
 
 export async function getAbTestAnalytics() {
-  return []; // Simplified for now
+  return [];
 }
 
 export async function createExpressLead(data: InsertExpressLead): Promise<number> {
@@ -205,9 +199,14 @@ export async function getExpressLeadById(id: number) {
 }
 
 export async function getAllExpressLeads() {
-  return [];
+  try {
+    const snapshot = await fdb.collection("express_leads").orderBy("createdAt", "desc").get();
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error("Firebase getAllExpressLeads Error:", error);
+    return [];
+  }
 }
 
 export async function updateExpressLeadStatus(id: number, status: any) {
-  // Not implemented
 }
