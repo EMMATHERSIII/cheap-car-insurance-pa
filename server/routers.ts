@@ -3,20 +3,17 @@ import { router, publicProcedure, protectedProcedure } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import {
   createLead,
-  getLeadById,
-  updateLeadStatus,
   insertContactMessage,
-  getPublishedBlogPosts,
+  getBlogPosts,
   getBlogPostBySlug,
-  getRecentBlogPosts,
   createBlogPost,
-  getAllBlogPosts,
   createExpressLead,
-  getAllExpressLeads,
-  updateExpressLeadStatus,
+  getLeads,
+  getExpressLeads,
 } from "./db";
 import { adminRouter } from "./admin-routers";
 import { notifyOwner } from "./_core/notification";
+
 export const appRouter = router({
   leads: router({
     submitExpress: publicProcedure
@@ -30,7 +27,7 @@ export const appRouter = router({
         const ipAddress = ctx.req.ip || (ctx.req.headers["x-forwarded-for"] as string) || "";
         const userAgent = ctx.req.headers["user-agent"] || "";
         const referrer = ctx.req.headers["referer"] || "";
-        const expressLeadId = await createExpressLead({
+        const result = await createExpressLead({
           email: input.email,
           phone: input.phone,
           ipAddress,
@@ -38,6 +35,7 @@ export const appRouter = router({
           referrer,
           status: "new",
         });
+        const expressLeadId = result[0].id;
         if (expressLeadId) {
           notifyOwner({
             title: "⚡ Express Lead Received!",
@@ -69,13 +67,14 @@ export const appRouter = router({
         const ipAddress = ctx.req.ip || (ctx.req.headers["x-forwarded-for"] as string) || "";
         const userAgent = ctx.req.headers["user-agent"] || "";
         const referrer = ctx.req.headers["referer"] || "";
-        const leadId = await createLead({
+        const result = await createLead({
           ...input,
           ipAddress,
           userAgent,
           referrer,
           status: "new",
         });
+        const leadId = result[0].id;
         if (leadId) {
           notifyOwner({
             title: "🚗 New Lead Received!",
@@ -90,17 +89,17 @@ export const appRouter = router({
         if (ctx.user.role !== "admin") {
           throw new TRPCError({ code: "FORBIDDEN" });
         }
-        return await getAllExpressLeads();
+        return await getExpressLeads();
       }),
     }),
   }),
   blog: router({
     count: publicProcedure.query(async () => {
-      const posts = await getPublishedBlogPosts();
+      const posts = await getBlogPosts();
       return posts.length;
     }),
     list: publicProcedure.query(async () => {
-      return await getPublishedBlogPosts();
+      return await getBlogPosts();
     }),
     getBySlug: publicProcedure
       .input(z.object({ slug: z.string() }))
@@ -110,14 +109,15 @@ export const appRouter = router({
     recent: publicProcedure
       .input(z.object({ limit: z.number().optional() }).optional())
       .query(async ({ input }) => {
-        return await getRecentBlogPosts(input?.limit);
+        const posts = await getBlogPosts();
+        return posts.slice(0, input?.limit || 3);
       }),
     admin: router({
       list: protectedProcedure.query(async ({ ctx }) => {
         if (ctx.user.role !== "admin") {
           throw new TRPCError({ code: "FORBIDDEN" });
         }
-        return await getAllBlogPosts();
+        return await getBlogPosts();
       }),
       create: protectedProcedure
         .input(
@@ -139,11 +139,11 @@ export const appRouter = router({
           if (ctx.user.role !== "admin") {
             throw new TRPCError({ code: "FORBIDDEN" });
           }
-          const postId = await createBlogPost({
+          const result = await createBlogPost({
             ...input,
             authorId: ctx.user.id,
           });
-          return { id: postId };
+          return { id: result[0].id };
         }),
     }),
   }),
@@ -158,8 +158,8 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ input }) => {
-        const messageId = await insertContactMessage(input);
-        return { success: true, id: messageId };
+        const result = await insertContactMessage(input);
+        return { success: true, id: result[0].id };
       }),
   }),
   admin: adminRouter,
