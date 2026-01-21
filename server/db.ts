@@ -154,3 +154,13 @@ export async function getUserByOpenId(openId: string) {
     return undefined;
   }
 }
+
+export async function getPublishedBlogPosts() {
+  try {
+    const snapshot = await fd.collection("articles").where("status", "==", "published").orderBy("createdAt", "desc").get();
+    return snapshot.docs.map(doc => doc.data() as BlogPost);
+  } catch (error) {
+    console.error("Firebase getPublishedBlogPosts error:", error);
+    return [];
+  }
+}
